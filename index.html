@@ -3,94 +3,317 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Retro Quran Reader</title>
+  <title>Retro Walkman Quran</title>
   <style>
-    /* Dark brown + gold (default) */
+    /* Dark Metallic Theme (Default) */
     :root {
-      --bg-color: #1a120b; --card-bg: #2b1f14; --card-inner: #3a2a1a;
-      --accent: #d4af37; --text-dark: #f0e2c0; --text-light: #c9b586;
-      --input-bg: #241a10; --input-text: #f0e2c0;
-      --border: rgba(212, 175, 55, 0.35);
-      --shadow: 0 10px 25px rgba(0,0,0,0.5);
-      --inset-shadow: inset 0 2px 5px rgba(0,0,0,0.4);
+      --bg-color: #121417;
+      --body-grad: linear-gradient(145deg, #2c323b, #1d2127);
+      --border-color: #3f4754;
+      --panel-bg: rgba(0, 0, 0, 0.25);
+      --text-main: #e2e8f0;
+      --text-sub: #94a3b8;
+      --accent: #d4af37;
+      --knob-grad: linear-gradient(145deg, #3b424e, #232830);
+      --knob-shadow: 0 6px 12px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.2);
       --focus-ring: #d4af37;
     }
 
-    /* Light beige / brown / gold / yellow */
+
+    /* Light Silver Metallic Theme */
     body.light-mode {
-      --bg-color: #f3ead5; --card-bg: #e9dcbe; --card-inner: #decfa8;
-      --accent: #b8860b; --text-dark: #4a3525; --text-light: #7a5f3a;
-      --input-bg: #fbf6ea; --input-text: #4a3525;
-      --border: rgba(184, 134, 11, 0.4);
-      --shadow: 0 10px 25px rgba(90, 60, 20, 0.15);
-      --inset-shadow: inset 0 2px 5px rgba(90, 60, 20, 0.15);
+      --bg-color: #e2e8f0;
+      --body-grad: linear-gradient(145deg, #f8fafc, #cbd5e1);
+      --border-color: #94a3b8;
+      --panel-bg: rgba(255, 255, 255, 0.4);
+      --text-main: #1e293b;
+      --text-sub: #64748b;
+      --accent: #b8860b;
+      --knob-grad: linear-gradient(145deg, #ffffff, #e2e8f0);
+      --knob-shadow: 0 6px 12px rgba(0,0,0,0.15), inset 0 1px 2px rgba(255,255,255,0.8);
       --focus-ring: #b8860b;
     }
 
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg-color); color: var(--text-dark); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; transition: background-color 0.3s ease, color 0.3s ease; }
-    .app-container { width: 100%; max-width: 420px; background: var(--card-bg); border-radius: 32px; padding: 24px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 16px; border: 4px solid var(--border); }
-    .top-bar { display: flex; justify-content: space-between; align-items: center; }
-    .app-title { font-weight: 800; font-size: 1rem; text-transform: uppercase; color: var(--text-dark); }
-    .top-buttons { display: flex; gap: 8px; }
-    .lang-btn, .theme-btn { background: var(--input-bg); color: var(--input-text); border: 2px solid var(--border); border-radius: 20px; padding: 4px 10px; font-size: 0.8rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 5px; }
-    .cassette-deck { background: var(--card-inner); border-radius: 20px; padding: 16px; box-shadow: var(--inset-shadow); display: flex; flex-direction: column; align-items: center; gap: 12px; }
-    .tape-window { width: 100%; height: 110px; background: #181515; border-radius: 12px; display: flex; justify-content: space-around; align-items: center; padding: 0 24px; position: relative; border: 3px solid #362f2e; }
-    .reel { width: 50px; height: 50px; background: #ffffff; border-radius: 50%; border: 5px solid #110e0e; position: relative; display: flex; justify-content: center; align-items: center; }
-    .reel-center { width: 16px; height: 16px; background: #110e0e; border-radius: 50%; }
-    .reel-spoke { position: absolute; width: 100%; height: 3px; background: #110e0e; }
-    .reel-spoke:nth-child(2) { transform: rotate(60deg); } .reel-spoke:nth-child(3) { transform: rotate(120deg); }
-    .spinning { animation: spin 2.5s linear infinite; } @keyframes spin { 100% { transform: rotate(360deg); } }
-    .tape-bridge { width: 50px; height: 16px; background: #362f2e; border-radius: 4px; }
-    .track-info { text-align: center; width: 100%; }
-    .track-title { font-size: 1.1rem; font-weight: 700; color: var(--text-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .track-subtitle { font-size: 0.85rem; color: var(--text-light); margin-top: 2px; }
-    .controls-group { display: flex; flex-direction: column; gap: 10px; }
-    .select-box { width: 100%; padding: 12px; border-radius: 12px; border: 2px solid var(--border); background-color: var(--input-bg) !important; color: var(--input-text) !important; font-size: 0.9rem; font-weight: 600; cursor: pointer; outline: none; }
-    .select-box option { background-color: var(--input-bg) !important; color: var(--input-text) !important; }
-    .time-bar { display: flex; align-items: center; gap: 10px; font-size: 0.75rem; color: var(--text-light); font-weight: 600; }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      transition: background-color 0.3s ease;
+    }
+
+
+    /* Walkman Outer Shell */
+    .walkman-container {
+      width: 100%;
+      max-width: 360px;
+      background: var(--body-grad);
+      border-radius: 40px;
+      padding: 24px 20px 32px 20px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6), inset 0 2px 3px rgba(255,255,255,0.3);
+      border: 4px solid var(--border-color);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+
+    /* Side Metallic Buttons Visuals */
+    .walkman-container::before {
+      content: ''; position: absolute; right: -10px; top: 120px; width: 6px; height: 50px;
+      background: var(--border-color); border-radius: 0 4px 4px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+    .walkman-container::after {
+      content: ''; position: absolute; right: -10px; top: 220px; width: 6px; height: 70px;
+      background: var(--border-color); border-radius: 0 4px 4px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+
+    /* Top Navigation / Branding */
+    .brand-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 4px;
+    }
+    .brand-title {
+      font-weight: 900;
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-sub);
+    }
+    .top-controls { display: flex; gap: 8px; }
+    .icon-btn {
+      background: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      border-radius: 20px;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+
+    /* Cassette Housing Deck */
+    .cassette-housing {
+      background: #0f1115;
+      border-radius: 20px;
+      padding: 12px;
+      border: 3px solid #272c35;
+      box-shadow: inset 0 5px 12px rgba(0,0,0,0.8);
+    }
+    .cassette-tape {
+      width: 100%;
+      height: 120px;
+      background: linear-gradient(180deg, #2b313a 0%, #1a1d23 100%);
+      border-radius: 12px;
+      border: 2px solid #3d4552;
+      position: relative;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .cassette-label {
+      background: #e2e8f0;
+      color: #0f172a;
+      height: 65px;
+      border-radius: 6px;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    .tape-side { font-weight: 900; font-size: 1.1rem; color: #64748b; }
+
+    /* Tape Window & Reels */
+    .tape-window {
+      width: 140px;
+      height: 48px;
+      background: #090a0c;
+      border-radius: 24px;
+      border: 2px solid #475569;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 8px;
+      position: relative;
+      margin: 0 auto;
+    }
+    .reel {
+      width: 34px;
+      height: 34px;
+      background: #ffffff;
+      border-radius: 50%;
+      border: 4px solid #000;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .reel-center { width: 10px; height: 10px; background: #000; border-radius: 50%; }
+    .reel-spoke { position: absolute; width: 100%; height: 2px; background: #000; }
+    .reel-spoke:nth-child(2) { transform: rotate(60deg); }
+    .reel-spoke:nth-child(3) { transform: rotate(120deg); }
+    .spinning { animation: spin 2s linear infinite; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+
+    /* Track Display Panel */
+    .track-panel {
+      background: var(--panel-bg);
+      border-radius: 16px;
+      padding: 12px 16px;
+      border: 1px solid var(--border-color);
+    }
+    .track-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .track-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      margin-top: 2px;
+    }
+
+
+    /* Equalizer Sound Waves */
+    .equalizer {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 3px;
+      height: 24px;
+      margin: 8px 0 4px 0;
+    }
+    .eq-bar {
+      width: 3px;
+      background: var(--accent);
+      border-radius: 2px;
+      height: 20%;
+      transition: height 0.15s ease;
+    }
+    .equalizer.active .eq-bar {
+      animation: equalize 1.2s ease-in-out infinite alternate;
+    }
+    .eq-bar:nth-child(1) { animation-delay: 0.1s; }
+    .eq-bar:nth-child(2) { animation-delay: 0.4s; }
+    .eq-bar:nth-child(3) { animation-delay: 0.2s; }
+    .eq-bar:nth-child(4) { animation-delay: 0.5s; }
+    .eq-bar:nth-child(5) { animation-delay: 0.3s; }
+    @keyframes equalize {
+      0% { height: 15%; }
+      100% { height: 100%; }
+    }
+
+
+    /* Select Boxes & Controls */
+    .select-box {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      background-color: var(--panel-bg) !important;
+      color: var(--text-main) !important;
+      font-size: 0.85rem;
+      font-weight: 600;
+      outline: none;
+    }
+    .select-box option { background-color: var(--bg-color) !important; color: var(--text-main) !important; }
+
+
+    /* Time & Progress Bar */
+    .time-bar { display: flex; align-items: center; gap: 8px; font-size: 0.7rem; color: var(--text-sub); font-weight: 700; margin-top: 4px; }
     .progress-range { flex: 1; accent-color: var(--accent); cursor: pointer; }
-    .buttons-row { display: flex; justify-content: center; align-items: center; gap: 16px; }
-    .btn { border: none; background: var(--input-bg); color: var(--input-text); border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    .btn-small { width: 46px; height: 46px; font-size: 1rem; }
-    .btn-large { width: 60px; height: 60px; font-size: 1.3rem; background: var(--accent); color: #ffffff; }
-    *:focus-visible, *.tv-focused { outline: 3px solid var(--focus-ring) !important; outline-offset: 3px !important; }
+
+
+    /* Circular Physical Knob Buttons */
+    .knobs-container {
+      display: flex;
+      justify-content: space-around;
+      align-items: flex-end;
+      margin-top: 8px;
+      padding: 0 10px;
+    }
+    .knob-wrapper { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .knob-btn {
+      border: 2px solid var(--border-color);
+      background: var(--knob-grad);
+      color: var(--text-main);
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: var(--knob-shadow);
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+    .knob-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+    }
+    .knob-small { width: 44px; height: 44px; font-size: 0.9rem; }
+    .knob-large { width: 58px; height: 58px; font-size: 1.2rem; border-color: var(--accent); }
+    .knob-label { font-size: 0.65rem; font-weight: 800; letter-spacing: 1px; color: var(--text-sub); }
+
+
+    *:focus-visible, *.tv-focused { outline: 2px solid var(--focus-ring) !important; outline-offset: 2px !important; }
   </style>
 </head>
 <body>
 
 
-  <div class="app-container">
-    <div class="top-bar">
-      <div class="app-title" id="appTitle">Retro Quran</div>
-      <div class="top-buttons">
-        <button class="theme-btn tv-focusable" id="themeToggle" tabindex="0" title="Light mode">
-          <span id="themeIcon">🌙</span>
-        </button>
-        <button class="lang-btn tv-focusable" id="langToggle" tabindex="0">
-          <span id="langFlag">🇲🇦</span> <span id="langText">العربية</span>
-        </button>
+  <div class="walkman-container">
+
+    <!-- Top Header -->
+    <div class="brand-header">
+      <div class="brand-title" id="appTitle">SNOWSKY</div>
+      <div class="top-controls">
+        <button class="icon-btn tv-focusable" id="themeToggle" tabindex="0"><span id="themeIcon">☀️</span></button>
+        <button class="icon-btn tv-focusable" id="langToggle" tabindex="0"><span id="langFlag">🇲🇦</span> <span id="langText">العربية</span></button>
       </div>
     </div>
 
 
-    <div class="cassette-deck">
-      <div class="tape-window">
-        <div class="reel" id="reelLeft"><div class="reel-spoke"></div><div class="reel-spoke"></div><div class="reel-spoke"></div><div class="reel-center"></div></div>
-        <div class="tape-bridge"></div>
-        <div class="reel" id="reelRight"><div class="reel-spoke"></div><div class="reel-spoke"></div><div class="reel-spoke"></div><div class="reel-center"></div></div>
-      </div>
-      <div class="track-info">
-        <div class="track-title" id="displaySurah">---</div>
-        <div class="track-subtitle" id="displayReciter">---</div>
+    <!-- Cassette Window -->
+    <div class="cassette-housing">
+      <div class="cassette-tape">
+        <div class="cassette-label">
+          <span class="tape-side">A</span>
+          <div class="tape-window">
+            <div class="reel" id="reelLeft"><div class="reel-spoke"></div><div class="reel-spoke"></div><div class="reel-spoke"></div><div class="reel-center"></div></div>
+            <div class="reel" id="reelRight"><div class="reel-spoke"></div><div class="reel-spoke"></div><div class="reel-spoke"></div><div class="reel-center"></div></div>
+          </div>
+          <span class="tape-side">A</span>
+        </div>
       </div>
     </div>
 
 
-    <div class="controls-group">
-      <select id="reciterSelect" class="select-box tv-focusable" tabindex="0"></select>
-      <select id="surahSelect" class="select-box tv-focusable" tabindex="0"></select>
+    <!-- Track Details & Visualizer -->
+    <div class="track-panel">
+      <div class="track-title" id="displaySurah">---</div>
+      <div class="track-subtitle" id="displayReciter">---</div>
+
+
+      <div class="equalizer" id="equalizer">
+        <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+        <div class="eq-bar"></div><div class="eq-bar"></div>
+      </div>
 
 
       <div class="time-bar">
@@ -98,14 +321,31 @@
         <input type="range" id="progressBar" class="progress-range tv-focusable" tabindex="0" value="0" min="0" max="100">
         <span id="durationTime">0:00</span>
       </div>
+    </div>
 
 
-      <div class="buttons-row">
-        <button class="btn btn-small tv-focusable" id="prevBtn" tabindex="0">⏮</button>
-        <button class="btn btn-large tv-focusable" id="playBtn" tabindex="0">▶</button>
-        <button class="btn btn-small tv-focusable" id="nextBtn" tabindex="0">⏭</button>
+    <!-- Dropdown Selections -->
+    <select id="reciterSelect" class="select-box tv-focusable" tabindex="0"></select>
+    <select id="surahSelect" class="select-box tv-focusable" tabindex="0"></select>
+
+
+    <!-- Metallic Knob Buttons -->
+    <div class="knobs-container">
+      <div class="knob-wrapper">
+        <button class="knob-btn knob-small tv-focusable" id="prevBtn" tabindex="0">⏮</button>
+        <span class="knob-label">PREV</span>
+      </div>
+      <div class="knob-wrapper">
+        <button class="knob-btn knob-large tv-focusable" id="playBtn" tabindex="0">▶</button>
+        <span class="knob-label">PLAY</span>
+      </div>
+      <div class="knob-wrapper">
+        <button class="knob-btn knob-small tv-focusable" id="nextBtn" tabindex="0">⏭</button>
+        <span class="knob-label">NEXT</span>
       </div>
     </div>
+
+
   </div>
 
 
@@ -122,6 +362,7 @@
     const nextBtn = document.getElementById('nextBtn');
     const reelLeft = document.getElementById('reelLeft');
     const reelRight = document.getElementById('reelRight');
+    const equalizer = document.getElementById('equalizer');
     const displaySurah = document.getElementById('displaySurah');
     const displayReciter = document.getElementById('displayReciter');
     const progressBar = document.getElementById('progressBar');
@@ -137,7 +378,6 @@
     let currentLang = 'fr';
 
 
-    // Array containing exact Arabic names for all 114 Surahs
     var SURAH_NAMES_AR = [
       "الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس",
       "هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه",
@@ -154,14 +394,11 @@
     ];
 
 
-    function toggleTheme() {
+    themeToggle.addEventListener('click', () => {
       document.body.classList.toggle('light-mode');
       const isLight = document.body.classList.contains('light-mode');
-      themeIcon.textContent = isLight ? '☀️' : '🌙';
-      themeToggle.title = isLight ? 'Dark mode' : 'Light mode';
-    }
-
-    themeToggle.addEventListener('click', toggleTheme);
+      themeIcon.textContent = isLight ? '🌙' : '☀️';
+    });
 
 
     async function loadReciters() {
@@ -172,39 +409,25 @@
         const res = await fetch(`${API_BASE}/reciters?language=${langApi}`);
         const data = await res.json();
 
+
         parsedRecitersList = [];
-
-
-        // Parse and isolate each available moshaf edition
         data.reciters.forEach((reciter) => {
           if (reciter.moshaf && reciter.moshaf.length > 0) {
             reciter.moshaf.forEach((m) => {
-              const displayName = reciter.moshaf.length > 1
-                ? `${reciter.name} (${m.name})`
-                : reciter.name;
-
-
-              parsedRecitersList.push({
-                name: displayName,
-                server: m.server,
-                surahList: m.surah_list.split(',').map(Number)
-              });
+              const displayName = reciter.moshaf.length > 1 ? `${reciter.name} (${m.name})` : reciter.name;
+              parsedRecitersList.push({ name: displayName, server: m.server, surahList: m.surah_list.split(',').map(Number) });
             });
           }
         });
 
 
         parsedRecitersList.sort((a, b) => a.name.localeCompare(b.name));
-
-
         parsedRecitersList.forEach((item, index) => {
           const opt = document.createElement('option');
           opt.value = index;
           opt.textContent = item.name;
           reciterSelect.appendChild(opt);
         });
-
-
       } catch (e) {
         displayReciter.textContent = currentLang === 'ar' ? "خطأ في الاتصال" : "Erreur réseau";
       }
@@ -220,7 +443,7 @@
       document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
 
 
-      document.getElementById('appTitle').textContent = currentLang === 'ar' ? "القرآن الكريم" : "Retro Quran";
+      document.getElementById('appTitle').textContent = currentLang === 'ar' ? "القرآن الكريم" : "SNOWSKY";
       document.getElementById('langText').textContent = currentLang === 'ar' ? "Français" : "العربية";
       document.getElementById('langFlag').textContent = currentLang === 'ar' ? "🇫🇷" : "🇲🇦";
       displayReciter.textContent = currentLang === 'ar' ? "اختر قارئاً" : "Choisissez un Récitateur";
@@ -274,8 +497,6 @@
 
       const selectedReciter = parsedRecitersList[idx];
       displayReciter.textContent = selectedReciter.name;
-
-
       currentServer = selectedReciter.server;
       populateSurahOptions(selectedReciter.surahList);
     });
@@ -288,20 +509,9 @@
 
       const formattedNum = String(surahNum).padStart(3, '0');
       audioPlayer.src = `${currentServer}${formattedNum}.mp3`;
-
-
       displaySurah.textContent = e.target.options[e.target.selectedIndex].text;
-      audioPlayer.play().catch(err => {
-        console.warn("Audio playback issue:", err);
-      });
+      audioPlayer.play().catch(console.warn);
       updatePlayState(true);
-    });
-
-
-    // Auto-detect unavailable streams on audio error
-    audioPlayer.addEventListener('error', () => {
-      updatePlayState(false);
-      displaySurah.textContent = currentLang === 'ar' ? "غير متوفر حالياً" : "Fichier non disponible";
     });
 
 
@@ -322,9 +532,11 @@
       if (isPlaying) {
         reelLeft.classList.add('spinning');
         reelRight.classList.add('spinning');
+        equalizer.classList.add('active');
       } else {
         reelLeft.classList.remove('spinning');
         reelRight.classList.remove('spinning');
+        equalizer.classList.remove('active');
       }
     }
 
@@ -345,6 +557,7 @@
     });
 
 
+    // Auto Advance to Next Surah (with wraparound so playback never stops)
     audioPlayer.addEventListener('ended', () => {
       updatePlayState(false);
       if (surahSelect.options.length <= 1) return;

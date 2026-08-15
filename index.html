@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retro Quran Reader</title>
+  <style>
+    :root {
+      --bg-color: #f7f0ea;
+      --card-bg: #f9d8d6;
+      --card-inner: #eed1ce;
+      --accent-green: #a8d5ba;
+      --accent-pink: #e8a598;
+      --text-dark: #4a3e3d;
+      --text-light: #7a6b6a;
+      --shadow: 0 10px 25px rgba(0,0,0,0.08);
+      --inset-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-dark);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+
+    .app-container {
+      width: 100%;
+      max-width: 380px;
+      background: var(--card-bg);
+      border-radius: 36px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      border: 4px solid #ffffff;
+    }
+
+
+    .app-header {
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: 1px;
+      color: var(--text-dark);
+      text-transform: uppercase;
+    }
+
+
+    /* Cassette Tape Deck */
+    .cassette-deck {
+      background: var(--card-inner);
+      border-radius: 20px;
+      padding: 16px;
+      box-shadow: var(--inset-shadow);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+
+    .tape-window {
+      width: 100%;
+      height: 120px;
+      background: #3e3332;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 0 30px;
+      position: relative;
+      overflow: hidden;
+      border: 3px solid #635452;
+    }
+
+
+    .tape-window::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 50%);
+      pointer-events: none;
+    }
+
+
+    .reel {
+      width: 54px;
+      height: 54px;
+      background: #ffffff;
+      border-radius: 50%;
+      border: 5px solid #221c1b;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+
+    .reel-center {
+      width: 18px;
+      height: 18px;
+      background: #221c1b;
+      border-radius: 50%;
+    }
+
+
+    .reel-spoke {
+      position: absolute;
+      width: 100%;
+      height: 4px;
+      background: #221c1b;
+    }
+
+
+    .reel-spoke:nth-child(2) { transform: rotate(60deg); }
+    .reel-spoke:nth-child(3) { transform: rotate(120deg); }
+
+
+    /* Spinning Animation */
+    .spinning {
+      animation: spin 3s linear infinite;
+    }
+
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+
+    .tape-bridge {
+      width: 60px;
+      height: 20px;
+      background: #504341;
+      border-radius: 4px;
+    }
+
+
+    /* Track Display */
+    .track-info {
+      text-align: center;
+      width: 100%;
+    }
+
+
+    .track-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+
+    .track-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-light);
+      margin-top: 4px;
+    }
+
+
+    /* Controls & Selectors */
+    .controls-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+
+    .select-box {
+      width: 100%;
+      padding: 12px;
+      border-radius: 14px;
+      border: 2px solid rgba(255,255,255,0.8);
+      background: #ffffff;
+      color: var(--text-dark);
+      font-size: 0.9rem;
+      font-weight: 600;
+      outline: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+      cursor: pointer;
+    }
+
+
+    .time-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.75rem;
+      color: var(--text-light);
+      font-weight: 600;
+    }
+
+
+    .progress-range {
+      flex: 1;
+      accent-color: var(--accent-pink);
+      cursor: pointer;
+    }
+
+
+    .buttons-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      margin-top: 6px;
+    }
+
+
+    .btn {
+      border: none;
+      background: #ffffff;
+      color: var(--text-dark);
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.06);
+      transition: all 0.15s ease;
+    }
+
+
+    .btn:active {
+      transform: scale(0.92);
+    }
+
+
+    .btn-small { width: 44px; height: 44px; font-size: 1rem; }
+    .btn-large { width: 62px; height: 62px; font-size: 1.4rem; background: var(--accent-pink); color: #fff; }
+
+
+  </style>
+</head>
+<body>
+
+
+  <div class="app-container">
+    <div class="app-header">Retro Quran Player</div>
+
+
+    <!-- Cassette UI -->
+    <div class="cassette-deck">
+      <div class="tape-window">
+        <div class="reel" id="reelLeft">
+          <div class="reel-spoke"></div>
+          <div class="reel-spoke"></div>
+          <div class="reel-spoke"></div>
+          <div class="reel-center"></div>
+        </div>
+        <div class="tape-bridge"></div>
+        <div class="reel" id="reelRight">
+          <div class="reel-spoke"></div>
+          <div class="reel-spoke"></div>
+          <div class="reel-spoke"></div>
+          <div class="reel-center"></div>
+        </div>
+      </div>
+
+
+      <div class="track-info">
+        <div class="track-title" id="displaySurah">Select Surah</div>
+        <div class="track-subtitle" id="displayReciter">Loading Reciters...</div>
+      </div>
+    </div>
+
+
+    <!-- Controls -->
+    <div class="controls-group">
+      <select id="reciterSelect" class="select-box">
+        <option value="">Fetching Reciters...</option>
+      </select>
+
+
+      <select id="surahSelect" class="select-box">
+        <option value="">Select Surah</option>
+      </select>
+
+
+      <div class="time-bar">
+        <span id="currentTime">0:00</span>
+        <input type="range" id="progressBar" class="progress-range" value="0" min="0" max="100">
+        <span id="durationTime">0:00</span>
+      </div>
+
+
+      <div class="buttons-row">
+        <button class="btn btn-small" id="prevBtn">⏮</button>
+        <button class="btn btn-large" id="playBtn">▶</button>
+        <button class="btn btn-small" id="nextBtn">⏭</button>
+      </div>
+    </div>
+  </div>
+
+
+  <audio id="audioPlayer"></audio>
+
+
+  <script>
+    const API_BASE = "https://mp3quran.net/api/v3";
+    const audioPlayer = document.getElementById('audioPlayer');
+    const reciterSelect = document.getElementById('reciterSelect');
+    const surahSelect = document.getElementById('surahSelect');
+    const playBtn = document.getElementById('playBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const reelLeft = document.getElementById('reelLeft');
+    const reelRight = document.getElementById('reelRight');
+    const displaySurah = document.getElementById('displaySurah');
+    const displayReciter = document.getElementById('displayReciter');
+    const progressBar = document.getElementById('progressBar');
+    const currentTimeEl = document.getElementById('currentTime');
+    const durationTimeEl = document.getElementById('durationTime');
+
+
+    let recitersData = [];
+    let currentServer = "";
+    let availableSurahs = [];
+
+
+    // Fetch Reciters from API
+    async function loadReciters() {
+      try {
+        const res = await fetch(`${API_BASE}/reciters?language=eng`);
+        const data = await res.json();
+        recitersData = data.reciters;
+
+
+        reciterSelect.innerHTML = '<option value="">-- Choose Reciter --</option>';
+        recitersData.forEach((r, idx) => {
+          if (r.moshaf && r.moshaf.length > 0) {
+            const option = document.createElement('option');
+            option.value = idx;
+            option.textContent = r.name;
+            reciterSelect.appendChild(option);
+          }
+        });
+        displayReciter.textContent = "Choose a Reciter";
+      } catch (err) {
+        displayReciter.textContent = "Error loading reciters";
+      }
+    }
+
+
+    // Load Surah List for selected reciter
+    reciterSelect.addEventListener('change', (e) => {
+      const idx = e.target.value;
+      if (idx === "") return;
+
+
+      const reciter = recitersData[idx];
+      displayReciter.textContent = reciter.name;
+      
+      const moshaf = reciter.moshaf[0];
+      currentServer = moshaf.server;
+      availableSurahs = moshaf.surah_list.split(',').map(Number);
+
+
+      surahSelect.innerHTML = '<option value="">-- Choose Surah --</option>';
+      availableSurahs.forEach(surahNum => {
+        const option = document.createElement('option');
+        option.value = surahNum;
+        option.textContent = `Surah ${surahNum}`;
+        surahSelect.appendChild(option);
+      });
+    });
+
+
+    // Play Selected Surah
+    surahSelect.addEventListener('change', (e) => {
+      const surahNum = e.target.value;
+      if (!surahNum || !currentServer) return;
+
+
+      const formattedNum = String(surahNum).padStart(3, '0');
+      const audioUrl = `${currentServer}${formattedNum}.mp3`;
+      
+      audioPlayer.src = audioUrl;
+      displaySurah.textContent = `Surah ${surahNum}`;
+      audioPlayer.play();
+      updatePlayButton(true);
+    });
+
+
+    // Controls Logic
+    playBtn.addEventListener('click', () => {
+      if (!audioPlayer.src) return;
+      if (audioPlayer.paused) {
+        audioPlayer.play();
+        updatePlayButton(true);
+      } else {
+        audioPlayer.pause();
+        updatePlayButton(false);
+      }
+    });
+
+
+    function updatePlayButton(isPlaying) {
+      if (isPlaying) {
+        playBtn.textContent = '⏸';
+        reelLeft.classList.add('spinning');
+        reelRight.classList.add('spinning');
+      } else {
+        playBtn.textContent = '▶';
+        reelLeft.classList.remove('spinning');
+        reelRight.classList.remove('spinning');
+      }
+    }
+
+
+    // Audio Progress & Formatting
+    audioPlayer.addEventListener('timeupdate', () => {
+      if (audioPlayer.duration) {
+        const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+        progressBar.value = progress;
+        currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
+        durationTimeEl.textContent = formatTime(audioPlayer.duration);
+      }
+    });
+
+
+    progressBar.addEventListener('input', () => {
+      if (audioPlayer.duration) {
+        audioPlayer.currentTime = (progressBar.value / 100) * audioPlayer.duration;
+      }
+    });
+
+
+    audioPlayer.addEventListener('ended', () => {
+      updatePlayButton(false);
+    });
+
+
+    function formatTime(seconds) {
+      const mins = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+
+
+    // Previous / Next Track Buttons
+    nextBtn.addEventListener('click', () => {
+      if (surahSelect.selectedIndex < surahSelect.options.length - 1) {
+        surahSelect.selectedIndex++;
+        surahSelect.dispatchEvent(new Event('change'));
+      }
+    });
+
+
+    prevBtn.addEventListener('click', () => {
+      if (surahSelect.selectedIndex > 1) {
+        surahSelect.selectedIndex--;
+        surahSelect.dispatchEvent(new Event('change'));
+      }
+    });
+
+
+    // Initialize App
+    loadReciters();
+  </script>
+</body>
+</html>

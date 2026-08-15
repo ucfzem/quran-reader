@@ -205,6 +205,7 @@
     }
 
 
+    /* --- Reel GPU Compositing & Counter-Clockwise Spin --- */
     .reel {
       width: 32px;
       height: 32px;
@@ -216,13 +217,19 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      transform-origin: center;
+      will-change: transform;
     }
     .reel-center { width: 10px; height: 10px; background: #000; border-radius: 50%; }
     .reel-spoke { position: absolute; width: 100%; height: 2px; background: #000; }
     .reel-spoke:nth-child(2) { transform: rotate(60deg); }
     .reel-spoke:nth-child(3) { transform: rotate(120deg); }
-    .spinning { animation: spin 2.2s linear infinite; }
-    @keyframes spin { 100% { transform: rotate(360deg); } }
+    
+    @keyframes spin-reverse {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(-360deg); }
+    }
+    .spinning { animation: spin-reverse 2s linear infinite; }
 
 
     .track-panel {
@@ -277,6 +284,7 @@
     }
 
 
+    /* --- Visualizer Animations & Equalizer Bars --- */
     .equalizer-container {
       display: flex;
       align-items: flex-end;
@@ -295,7 +303,31 @@
       border-radius: 3px;
       height: 10%;
       min-height: 4px;
-      transition: height 0.08s linear;
+      transition: height 0.05s ease;
+    }
+
+
+    /* Idle Breathing Animation */
+    @keyframes bar-pulse {
+      0%, 100% { height: 4px; opacity: 0.5; }
+      50%      { height: 8px; opacity: 0.9; }
+    }
+    .eq-bar.idle {
+      animation: bar-pulse 1.8s ease-in-out infinite;
+    }
+
+
+    /* Fallback CSS animation if Web Audio API is restricted */
+    @keyframes fake-eq {
+      0%, 100% { height: 6px; }
+      50%      { height: 26px; }
+    }
+    .equalizer-container.fallback .eq-bar {
+      animation: fake-eq 0.6s ease-in-out infinite alternate;
+    }
+    .equalizer-container.fallback .eq-bar:nth-child(even) {
+      animation-delay: 0.2s;
+      animation-duration: 0.4s;
     }
 
 
@@ -303,7 +335,7 @@
     .progress-range { flex: 1; accent-color: var(--gold-2); cursor: pointer; }
 
 
-    /* --- Custom Dropdowns (remplacement des selects natifs) --- */
+    /* --- Dropdowns & Over-scroll Handling --- */
     .custom-dropdown {
       position: relative;
       width: 100%;
@@ -371,6 +403,8 @@
       flex-direction: column;
       overflow: hidden;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+      scroll-behavior: smooth;
+      overscroll-behavior: contain;
     }
 
 
@@ -419,6 +453,8 @@
       padding: 0;
       overflow-y: auto;
       max-height: 50vh;
+      scroll-behavior: smooth;
+      overscroll-behavior: contain;
     }
 
 
@@ -443,21 +479,21 @@
     .dropdown-item:hover,
     .dropdown-item:focus,
     .dropdown-item.selected {
-      background: #d4af37;
-      color: #111111;
-      outline: none;
+      background: #d4af37 !important;
+      color: #111111 !important;
+      outline: 2px solid #ffffff !important;
+      outline-offset: -2px !important;
     }
 
 
     body.light-mode .dropdown-item:hover,
     body.light-mode .dropdown-item:focus,
     body.light-mode .dropdown-item.selected {
-      background: rgba(184, 134, 11, 0.15);
-      color: #b8860b;
+      background: rgba(184, 134, 11, 0.2) !important;
+      color: #b8860b !important;
     }
 
 
-    /* Boutons métalliques */
     .knobs-container {
       display: flex;
       justify-content: space-around;
@@ -569,10 +605,10 @@
 
 
     <div class="equalizer-container" id="eqContainer">
-      <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
-      <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
-      <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
-      <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+      <div class="eq-bar idle"></div><div class="eq-bar idle"></div><div class="eq-bar idle"></div>
+      <div class="eq-bar idle"></div><div class="eq-bar idle"></div><div class="eq-bar idle"></div>
+      <div class="eq-bar idle"></div><div class="eq-bar idle"></div><div class="eq-bar idle"></div>
+      <div class="eq-bar idle"></div><div class="eq-bar idle"></div><div class="eq-bar idle"></div>
     </div>
 
 
@@ -584,10 +620,10 @@
   </div>
 
 
-  <!-- ======== SÉLECTEUR RÉCITATEUR PERSONNALISÉ ======== -->
+  <!-- SÉLECTEUR RÉCITATEUR PERSONNALISÉ -->
   <select id="reciterSelect" style="display: none;"></select>
   <div class="custom-dropdown" id="reciterPicker">
-    <button type="button" class="dropdown-trigger" id="reciterTrigger">
+    <button type="button" class="dropdown-trigger tv-focusable" id="reciterTrigger" tabindex="0">
       <span id="reciterTriggerText">-- اختر القارئ --</span>
       <span class="arrow">▾</span>
     </button>
@@ -603,10 +639,10 @@
   </div>
 
 
-  <!-- ======== SÉLECTEUR SOURATE PERSONNALISÉ ======== -->
+  <!-- SÉLECTEUR SOURATE PERSONNALISÉ -->
   <select id="surahSelect" style="display: none;"></select>
   <div class="custom-dropdown" id="surahPicker">
-    <button type="button" class="dropdown-trigger" id="surahTrigger">
+    <button type="button" class="dropdown-trigger tv-focusable" id="surahTrigger" tabindex="0">
       <span id="surahTriggerText">-- اختر السورة --</span>
       <span class="arrow">▾</span>
     </button>
@@ -648,9 +684,7 @@
 
 
 <script>
-  // ============================================================
-  //  DOM REFERENCES
-  // ============================================================
+  // DOM REFERENCES
   const API_BASE = "https://mp3quran.net/api/v3";
   const audioPlayer = document.getElementById('audioPlayer');
   const walkmanContainer = document.querySelector('.walkman-container');
@@ -671,18 +705,20 @@
   const langToggle = document.getElementById('langToggle');
   const themeToggle = document.getElementById('themeToggle');
   const themeIcon = document.getElementById('themeIcon');
+  const eqContainer = document.getElementById('eqContainer');
   const eqBars = document.querySelectorAll('.eq-bar');
 
 
-  // ============================================================
-  //  ÉTAT
-  // ============================================================
+  // STATE
   let parsedRecitersList = [];
   let currentServer = "";
   let currentLang = 'fr';
   let audioCtx, analyser, source, dataArray;
   let isWebAudioInitialized = false;
+  let isWebAudioSupported = true;
+  let animationFrameId;
   let wakeLock = null;
+  let isScrollThrottled = false;
   const STORAGE_KEY = 'walkman_quran_state';
 
 
@@ -702,18 +738,14 @@
   ];
 
 
-  // ============================================================
-  //  THÈME
-  // ============================================================
+  // THEME
   themeToggle.addEventListener('click', () => {
     document.body.classList.toggle('light-mode');
     themeIcon.textContent = document.body.classList.contains('light-mode') ? '🌙' : '☀️';
   });
 
 
-  // ============================================================
-  //  SYNC AFFICHAGE (pour les titres)
-  // ============================================================
+  // DISPLAY SYNC
   function syncSurahDisplay() {
     const idx = surahSelect.selectedIndex;
     if (surahSelect.value === "" || idx === -1) {
@@ -733,9 +765,7 @@
   }
 
 
-  // ============================================================
-  //  API ET LISTES
-  // ============================================================
+  // API FETCH & PARSE
   function populateSurahs(availableSurahs) {
     const defaultText = currentLang === 'ar' ? "-- اختر السورة --" : "-- Sélectionner Sourate --";
     surahSelect.innerHTML = `<option value="">${defaultText}</option>`;
@@ -746,7 +776,6 @@
       opt.textContent = currentLang === 'ar' ? `${id}. سورة ${arabicName}` : `Sourate ${id} - ${arabicName}`;
       surahSelect.appendChild(opt);
     });
-    // Mise à jour des dropdowns personnalisés
     buildCustomSurahList();
     updateSurahTriggerText();
   }
@@ -785,7 +814,6 @@
       });
 
 
-      // Restauration de la sélection
       if (prevReciterIdx !== "" && parsedRecitersList[prevReciterIdx]) {
         reciterSelect.value = prevReciterIdx;
         populateSurahs(parsedRecitersList[prevReciterIdx].surahList);
@@ -809,9 +837,7 @@
   }
 
 
-  // ============================================================
-  //  LOCAL STORAGE
-  // ============================================================
+  // LOCAL STORAGE
   function savePlayerState() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
@@ -840,7 +866,6 @@
       syncReciterDisplay();
       syncSurahDisplay();
       if (saved.time) audioPlayer.currentTime = saved.time;
-      // Mise à jour des dropdowns
       buildCustomReciterList();
       updateReciterTriggerText();
       buildCustomSurahList();
@@ -849,9 +874,7 @@
   }
 
 
-  // ============================================================
-  //  MEDIA SESSION
-  // ============================================================
+  // MEDIA SESSION
   function updateMediaSession() {
     if (!('mediaSession' in navigator)) return;
     const currentSurah = surahSelect.options[surahSelect.selectedIndex]?.text || 'القرآن الكريم';
@@ -879,9 +902,7 @@
   }
 
 
-  // ============================================================
-  //  WAKE LOCK
-  // ============================================================
+  // WAKE LOCK
   async function requestWakeLock() {
     try {
       if ('wakeLock' in navigator) {
@@ -899,53 +920,68 @@
   }
 
 
-  // ============================================================
-  //  WEB AUDIO / VISUALISEUR
-  // ============================================================
+  // VOICE-OPTIMIZED AUDIO ENGINE WITH FALLBACK
   function initAudioContext() {
-    if (isWebAudioInitialized) return;
+    if (isWebAudioInitialized || !isWebAudioSupported) return;
     try {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       audioCtx = new AudioContext();
       analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 64;
+      analyser.fftSize = 128; // 64 frequency bins across spectrum
       source = audioCtx.createMediaElementSource(audioPlayer);
       source.connect(analyser);
       analyser.connect(audioCtx.destination);
       dataArray = new Uint8Array(analyser.frequencyBinCount);
       isWebAudioInitialized = true;
     } catch (e) {
-      console.warn("Web Audio API restricted or fallback active:", e);
+      console.warn("Web Audio API restricted or CORS blocked. Utilizing CSS fallback.", e);
+      isWebAudioSupported = false;
     }
   }
 
 
   function updateVisualizer() {
-    requestAnimationFrame(updateVisualizer);
-    if (!audioPlayer.paused) {
-      if (isWebAudioInitialized && analyser) {
-        analyser.getByteFrequencyData(dataArray);
-        eqBars.forEach((bar, i) => {
-          const val = dataArray[i * 2] || 0;
-          const percent = Math.max(8, (val / 255) * 100);
-          bar.style.height = `${percent}%`;
-        });
-      } else {
-        eqBars.forEach((bar) => {
-          const randomVal = Math.floor(Math.random() * 75) + 15;
-          bar.style.height = `${randomVal}%`;
-        });
-      }
-    } else {
-      eqBars.forEach(bar => bar.style.height = '10%');
+    if (audioPlayer.paused) {
+      resetVisualizer();
+      return;
     }
+
+
+    if (!isWebAudioSupported) {
+      eqContainer.classList.add('fallback');
+      return;
+    }
+
+
+    animationFrameId = requestAnimationFrame(updateVisualizer);
+    analyser.getByteFrequencyData(dataArray);
+
+
+    const binsPerBar = Math.floor(dataArray.length / eqBars.length);
+    eqBars.forEach((bar, i) => {
+      bar.classList.remove('idle');
+      let sum = 0;
+      for (let j = 0; j < binsPerBar; j++) {
+        sum += dataArray[i * binsPerBar + j];
+      }
+      const avg = sum / binsPerBar;
+      const percent = Math.max(8, (avg / 255) * 100);
+      bar.style.height = `${percent}%`;
+    });
   }
-  updateVisualizer();
 
 
-  // ============================================================
-  //  LECTURE ET CONTROLES
-  // ============================================================
+  function resetVisualizer() {
+    cancelAnimationFrame(animationFrameId);
+    eqContainer.classList.remove('fallback');
+    eqBars.forEach(bar => {
+      bar.style.height = '10%';
+      bar.classList.add('idle');
+    });
+  }
+
+
+  // CONTROLS & STATE
   function updatePlayState(isPlaying) {
     playBtn.textContent = isPlaying ? '⏸' : '▶';
     if (isPlaying) {
@@ -965,9 +1001,7 @@
   }
 
 
-  // ============================================================
-  //  ÉVÉNEMENTS AUDIO
-  // ============================================================
+  // AUDIO EVENTS
   audioPlayer.addEventListener('timeupdate', () => {
     if (audioPlayer.duration) {
       const ratio = audioPlayer.currentTime / audioPlayer.duration;
@@ -1002,18 +1036,23 @@
 
   audioPlayer.addEventListener('play', () => {
     if (walkmanContainer) walkmanContainer.classList.add('is-playing');
+    initAudioContext();
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    updateVisualizer();
     updateMediaSession();
     if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
     requestWakeLock();
   });
   audioPlayer.addEventListener('pause', () => {
     if (walkmanContainer) walkmanContainer.classList.remove('is-playing');
+    resetVisualizer();
     savePlayerState();
     if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
     releaseWakeLock();
   });
   audioPlayer.addEventListener('ended', () => {
     releaseWakeLock();
+    resetVisualizer();
     if (surahSelect.selectedIndex < surahSelect.options.length - 1) {
       surahSelect.selectedIndex++;
       surahSelect.dispatchEvent(new Event('change'));
@@ -1024,9 +1063,7 @@
   });
 
 
-  // ============================================================
-  //  LANGUE
-  // ============================================================
+  // LANGUAGE
   langToggle.addEventListener('click', async () => {
     currentLang = currentLang === 'fr' ? 'ar' : 'fr';
     document.documentElement.lang = currentLang;
@@ -1039,9 +1076,7 @@
   });
 
 
-  // ============================================================
-  //  ÉVÉNEMENTS DES SÉLECTEURS (changent le select natif)
-  // ============================================================
+  // SELECT LISTENERS
   reciterSelect.addEventListener('change', (e) => {
     const idx = e.target.value;
     if (idx === "") {
@@ -1086,9 +1121,7 @@
   });
 
 
-  // ============================================================
-  //  BOUTONS PLAY / PREV / NEXT
-  // ============================================================
+  // PLAY / PREV / NEXT BUTTONS
   playBtn.addEventListener('click', () => {
     if (!audioPlayer.src) return;
     initAudioContext();
@@ -1119,9 +1152,7 @@
   });
 
 
-  // ============================================================
-  //  BOUTON DE COPIE (nom de la sourate)
-  // ============================================================
+  // COPY SURAH NAME
   const copyBtn = document.getElementById('copySurahBtn');
   copyBtn.addEventListener('click', () => {
     const text = displaySurah.textContent;
@@ -1152,9 +1183,20 @@
   });
 
 
-  // ============================================================
-  //  DROPDOWNS PERSONNALISÉS (SOURATE)
-  // ============================================================
+  // HELPER TO SCROLL & CENTER FOCUS
+  function focusAndCenter(element) {
+    if (!element) return;
+    element.focus();
+    try {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
+    } catch (e) { /* older WebViews */ }
+  }
+
+
+  // SURAH DROPDOWN
   const surahTrigger = document.getElementById('surahTrigger');
   const surahTriggerText = document.getElementById('surahTriggerText');
   const surahModal = document.getElementById('surahModal');
@@ -1168,8 +1210,7 @@
     items.forEach(item => item.setAttribute('tabindex', '0'));
     const selected = surahOptionsList.querySelector('.selected') || items[0];
     if (selected) {
-      selected.focus();
-      try { selected.scrollIntoView({ block: 'center' }); } catch (e) { /* ignore */ }
+      focusAndCenter(selected);
     }
   }
 
@@ -1184,14 +1225,25 @@
   surahOptionsList.addEventListener('keydown', (e) => {
     const focusableItems = Array.from(surahOptionsList.querySelectorAll('.dropdown-item'));
     const currentIndex = focusableItems.indexOf(document.activeElement);
-    if (e.key === 'ArrowDown') {
+
+
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault();
       e.stopPropagation();
-      focusableItems[(currentIndex + 1) % focusableItems.length].focus();
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      e.stopPropagation();
-      focusableItems[(currentIndex - 1 + focusableItems.length) % focusableItems.length].focus();
+
+
+      if (isScrollThrottled) return;
+      isScrollThrottled = true;
+      setTimeout(() => { isScrollThrottled = false; }, 60);
+
+
+      let targetIndex;
+      if (e.key === 'ArrowDown') {
+        targetIndex = currentIndex < focusableItems.length - 1 ? currentIndex + 1 : 0;
+      } else {
+        targetIndex = currentIndex > 0 ? currentIndex - 1 : focusableItems.length - 1;
+      }
+      focusAndCenter(focusableItems[targetIndex]);
     } else if (e.key === 'Enter') {
       e.preventDefault();
       e.stopPropagation();
@@ -1237,9 +1289,7 @@
   }
 
 
-  // ============================================================
-  //  DROPDOWNS PERSONNALISÉS (RÉCITATEUR)
-  // ============================================================
+  // RECITER DROPDOWN
   const reciterTrigger = document.getElementById('reciterTrigger');
   const reciterTriggerText = document.getElementById('reciterTriggerText');
   const reciterModal = document.getElementById('reciterModal');
@@ -1253,8 +1303,7 @@
     items.forEach(item => item.setAttribute('tabindex', '0'));
     const selected = reciterOptionsList.querySelector('.selected') || items[0];
     if (selected) {
-      selected.focus();
-      try { selected.scrollIntoView({ block: 'center' }); } catch (e) { /* ignore */ }
+      focusAndCenter(selected);
     }
   }
 
@@ -1269,14 +1318,25 @@
   reciterOptionsList.addEventListener('keydown', (e) => {
     const focusableItems = Array.from(reciterOptionsList.querySelectorAll('.dropdown-item'));
     const currentIndex = focusableItems.indexOf(document.activeElement);
-    if (e.key === 'ArrowDown') {
+
+
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault();
       e.stopPropagation();
-      focusableItems[(currentIndex + 1) % focusableItems.length].focus();
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      e.stopPropagation();
-      focusableItems[(currentIndex - 1 + focusableItems.length) % focusableItems.length].focus();
+
+
+      if (isScrollThrottled) return;
+      isScrollThrottled = true;
+      setTimeout(() => { isScrollThrottled = false; }, 60);
+
+
+      let targetIndex;
+      if (e.key === 'ArrowDown') {
+        targetIndex = currentIndex < focusableItems.length - 1 ? currentIndex + 1 : 0;
+      } else {
+        targetIndex = currentIndex > 0 ? currentIndex - 1 : focusableItems.length - 1;
+      }
+      focusAndCenter(focusableItems[targetIndex]);
     } else if (e.key === 'Enter') {
       e.preventDefault();
       e.stopPropagation();
@@ -1322,14 +1382,14 @@
   }
 
 
-  // ============================================================
-  //  NAVIGATION CLAVIER (TV)
-  // ============================================================
+  // TV KEYBOARD & D-PAD NAVIGATION
   window.addEventListener('keydown', (e) => {
     if (document.activeElement.classList.contains('dropdown-item')) return;
     const focusables = Array.from(document.querySelectorAll('.tv-focusable'));
     let index = focusables.indexOf(document.activeElement);
     const isSelect = document.activeElement.tagName === 'SELECT';
+
+
     switch (e.key) {
       case 'ArrowRight':
       case 'ArrowLeft':
@@ -1363,9 +1423,7 @@
   });
 
 
-  // ============================================================
-  //  VISIBILITY CHANGE (Wake Lock)
-  // ============================================================
+  // VISIBILITY CHANGE (Wake Lock)
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && !audioPlayer.paused && ('wakeLock' in navigator)) {
       requestWakeLock();
@@ -1373,9 +1431,7 @@
   });
 
 
-  // ============================================================
-  //  INITIALISATION
-  // ============================================================
+  // INITIALIZATION
   loadReciters().then(() => {
     restorePlayerState();
     buildCustomReciterList();

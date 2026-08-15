@@ -1187,12 +1187,20 @@
   function focusAndCenter(element) {
     if (!element) return;
     element.focus();
-    try {
-      element.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center'
-      });
-    } catch (e) { /* older WebViews */ }
+    const list = element.closest ? element.closest('.dropdown-list') : null;
+    if (list) {
+      const prevBehavior = list.style.scrollBehavior;
+      list.style.scrollBehavior = 'auto';
+      const listRect = list.getBoundingClientRect();
+      const elRect = element.getBoundingClientRect();
+      const target = list.scrollTop + (elRect.top - listRect.top) - (list.clientHeight - element.offsetHeight) / 2;
+      list.scrollTop = Math.max(0, Math.min(target, list.scrollHeight - list.clientHeight));
+      list.style.scrollBehavior = prevBehavior;
+    } else {
+      try {
+        element.scrollIntoView({ block: 'center' });
+      } catch (e) { /* older WebViews */ }
+    }
   }
 
 
@@ -1239,9 +1247,9 @@
 
       let targetIndex;
       if (e.key === 'ArrowDown') {
-        targetIndex = currentIndex < focusableItems.length - 1 ? currentIndex + 1 : 0;
+        targetIndex = Math.min(currentIndex + 1, focusableItems.length - 1);
       } else {
-        targetIndex = currentIndex > 0 ? currentIndex - 1 : focusableItems.length - 1;
+        targetIndex = Math.max(currentIndex - 1, 0);
       }
       focusAndCenter(focusableItems[targetIndex]);
     } else if (e.key === 'Enter') {
@@ -1332,9 +1340,9 @@
 
       let targetIndex;
       if (e.key === 'ArrowDown') {
-        targetIndex = currentIndex < focusableItems.length - 1 ? currentIndex + 1 : 0;
+        targetIndex = Math.min(currentIndex + 1, focusableItems.length - 1);
       } else {
-        targetIndex = currentIndex > 0 ? currentIndex - 1 : focusableItems.length - 1;
+        targetIndex = Math.max(currentIndex - 1, 0);
       }
       focusAndCenter(focusableItems[targetIndex]);
     } else if (e.key === 'Enter') {

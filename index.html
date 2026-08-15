@@ -250,6 +250,11 @@
       font-size: 0.8rem;
       color: var(--text-sub);
       margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+      display: block;
     }
 
 
@@ -287,8 +292,13 @@
       font-size: 0.85rem;
       font-weight: 600;
       outline: none;
+      color-scheme: dark;
+      appearance: none;
+      -webkit-appearance: none;
     }
-    .select-box option { background-color: var(--bg-color) !important; color: var(--text-main) !important; }
+    .select-box option { background-color: #1f2937 !important; color: #f3f4f6 !important; }
+    body.light-mode .select-box { color-scheme: light; }
+    body.light-mode .select-box option { background-color: #ffffff !important; color: #111111 !important; }
 
 
     /* Barre de temps */
@@ -454,6 +464,7 @@
   <script>
     const API_BASE = "https://mp3quran.net/api/v3";
     const audioPlayer = document.getElementById('audioPlayer');
+    const walkmanContainer = document.querySelector('.walkman-container');
     const reciterSelect = document.getElementById('reciterSelect');
     const surahSelect = document.getElementById('surahSelect');
     const playBtn = document.getElementById('playBtn');
@@ -741,6 +752,7 @@
         syncReciterDisplay();
         syncSurahDisplay();
         savePlayerState();
+        e.target.blur();
         return;
       }
 
@@ -753,6 +765,7 @@
       syncReciterDisplay();
       syncSurahDisplay();
       savePlayerState();
+      e.target.blur();
     });
 
 
@@ -761,6 +774,7 @@
       syncSurahDisplay();
       updateMediaSession();
       savePlayerState();
+      e.target.blur();
       if (!surahNum || !currentServer) return;
 
 
@@ -839,8 +853,16 @@
     });
 
 
-    audioPlayer.addEventListener('play', updateMediaSession);
-    audioPlayer.addEventListener('pause', savePlayerState);
+    audioPlayer.addEventListener('play', () => {
+      if (walkmanContainer) walkmanContainer.classList.add('is-playing');
+      updateMediaSession();
+      if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
+    });
+    audioPlayer.addEventListener('pause', () => {
+      if (walkmanContainer) walkmanContainer.classList.remove('is-playing');
+      savePlayerState();
+      if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
+    });
 
 
     // Screen Wake Lock : garde l'écran allumé pendant la récitation

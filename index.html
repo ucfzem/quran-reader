@@ -1,20 +1,85 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr" dir="ltr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Retro Quran Reader</title>
   <style>
+    /* Variables de base */
     :root {
       --bg-color: #f7f0ea;
       --card-bg: #f9d8d6;
       --card-inner: #eed1ce;
-      --accent-green: #a8d5ba;
-      --accent-pink: #e8a598;
+      --accent: #e8a598;
       --text-dark: #4a3e3d;
       --text-light: #7a6b6a;
+      --input-bg: #ffffff;
+      --input-text: #4a3e3d;
       --shadow: 0 10px 25px rgba(0,0,0,0.08);
       --inset-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+      --focus-ring: #ff5252;
+    }
+
+
+    /* 1. Vintage Pink */
+    body.theme-pink {
+      --bg-color: #f7f0ea; --card-bg: #f9d8d6; --card-inner: #eed1ce;
+      --accent: #e8a598; --text-dark: #4a3e3d; --text-light: #7a6b6a;
+      --input-bg: #ffffff; --input-text: #4a3e3d;
+    }
+    /* 2. Mint Green */
+    body.theme-mint {
+      --bg-color: #eef7f2; --card-bg: #cce8d5; --card-inner: #b3dbc0;
+      --accent: #6ebf8b; --text-dark: #2d4536; --text-light: #597d66;
+      --input-bg: #ffffff; --input-text: #2d4536;
+    }
+    /* 3. Moroccan Amber */
+    body.theme-amber {
+      --bg-color: #fcf6ed; --card-bg: #f5d9b2; --card-inner: #ebc693;
+      --accent: #d9822b; --text-dark: #472d13; --text-light: #7a5833;
+      --input-bg: #ffffff; --input-text: #472d13;
+    }
+    /* 4. Classic Cream */
+    body.theme-cream {
+      --bg-color: #f4f1ea; --card-bg: #e2ddd3; --card-inner: #d1caa7;
+      --accent: #8c8275; --text-dark: #33302c; --text-light: #666159;
+      --input-bg: #ffffff; --input-text: #33302c;
+    }
+    /* 5. Cyber Neon Dark (Correction du contraste) */
+    body.theme-cyber {
+      --bg-color: #0f0f14; --card-bg: #1a1a24; --card-inner: #252533;
+      --accent: #ff2a75; --text-dark: #ffffff; --text-light: #a0a0b0;
+      --input-bg: #2e2e3f; --input-text: #ffffff;
+    }
+    /* 6. Ocean Wave */
+    body.theme-ocean {
+      --bg-color: #eaf4f8; --card-bg: #bde0fe; --card-inner: #a2d2ff;
+      --accent: #0077b6; --text-dark: #03045e; --text-light: #0096c7;
+      --input-bg: #ffffff; --input-text: #03045e;
+    }
+    /* 7. Midnight Gold */
+    body.theme-gold {
+      --bg-color: #141414; --card-bg: #222222; --card-inner: #2d2d2d;
+      --accent: #d4af37; --text-dark: #f5e6a3; --text-light: #b3a15e;
+      --input-bg: #333333; --input-text: #f5e6a3;
+    }
+    /* 8. Lavender Dream */
+    body.theme-lavender {
+      --bg-color: #f3f0f8; --card-bg: #e2d9f3; --card-inner: #d1c2ec;
+      --accent: #8a5acf; --text-dark: #3a225d; --text-light: #6b4c9a;
+      --input-bg: #ffffff; --input-text: #3a225d;
+    }
+    /* 9. Sunset Orange */
+    body.theme-sunset {
+      --bg-color: #fdf3ed; --card-bg: #fcd5ce; --card-inner: #f8edeb;
+      --accent: #f26419; --text-dark: #4f1d0b; --text-light: #8f3b1b;
+      --input-bg: #ffffff; --input-text: #4f1d0b;
+    }
+    /* 10. Emerald Forest */
+    body.theme-emerald {
+      --bg-color: #0e1e17; --card-bg: #183327; --card-inner: #214736;
+      --accent: #2ec4b6; --text-dark: #e0f2fe; --text-light: #70ae98;
+      --input-bg: #285440; --input-text: #ffffff;
     }
 
 
@@ -22,7 +87,7 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
 
 
@@ -34,31 +99,91 @@
       align-items: center;
       min-height: 100vh;
       padding: 20px;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
 
 
     .app-container {
       width: 100%;
-      max-width: 380px;
+      max-width: 420px;
       background: var(--card-bg);
-      border-radius: 36px;
+      border-radius: 32px;
       padding: 24px;
       box-shadow: var(--shadow);
       display: flex;
       flex-direction: column;
-      gap: 20px;
-      border: 4px solid #ffffff;
+      gap: 16px;
+      border: 4px solid rgba(255, 255, 255, 0.2);
+      transition: background 0.3s ease;
     }
 
 
-    .app-header {
-      text-align: center;
-      font-weight: 700;
-      font-size: 1.1rem;
-      letter-spacing: 1px;
-      color: var(--text-dark);
+    /* Barre supérieure : Title & Langue */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+
+    .app-title {
+      font-weight: 800;
+      font-size: 1rem;
+      letter-spacing: 0.5px;
       text-transform: uppercase;
+      color: var(--text-dark);
     }
+
+
+    .lang-btn {
+      background: var(--input-bg);
+      color: var(--input-text);
+      border: 2px solid rgba(0,0,0,0.05);
+      border-radius: 20px;
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+
+    /* Palette de 10 Thèmes (Sélecteur en grille) */
+    .theme-picker {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 4px 0;
+    }
+
+
+    .theme-dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid #ffffff;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+      transition: transform 0.15s ease;
+    }
+
+
+    .theme-dot:hover { transform: scale(1.2); }
+
+
+    .dot-pink { background: #f9d8d6; }
+    .dot-mint { background: #cce8d5; }
+    .dot-amber { background: #f5d9b2; }
+    .dot-cream { background: #e2ddd3; }
+    .dot-cyber { background: #ff2a75; }
+    .dot-ocean { background: #0077b6; }
+    .dot-gold { background: #d4af37; }
+    .dot-lavender { background: #8a5acf; }
+    .dot-sunset { background: #f26419; }
+    .dot-emerald { background: #2ec4b6; }
 
 
     /* Cassette Tape Deck */
@@ -76,34 +201,24 @@
 
     .tape-window {
       width: 100%;
-      height: 120px;
-      background: #3e3332;
+      height: 110px;
+      background: #181515;
       border-radius: 12px;
       display: flex;
       justify-content: space-around;
       align-items: center;
-      padding: 0 30px;
+      padding: 0 24px;
       position: relative;
-      overflow: hidden;
-      border: 3px solid #635452;
-    }
-
-
-    .tape-window::after {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 50%);
-      pointer-events: none;
+      border: 3px solid #362f2e;
     }
 
 
     .reel {
-      width: 54px;
-      height: 54px;
+      width: 50px;
+      height: 50px;
       background: #ffffff;
       border-radius: 50%;
-      border: 5px solid #221c1b;
+      border: 5px solid #110e0e;
       position: relative;
       display: flex;
       justify-content: center;
@@ -111,89 +226,45 @@
     }
 
 
-    .reel-center {
-      width: 18px;
-      height: 18px;
-      background: #221c1b;
-      border-radius: 50%;
-    }
-
-
-    .reel-spoke {
-      position: absolute;
-      width: 100%;
-      height: 4px;
-      background: #221c1b;
-    }
-
-
+    .reel-center { width: 16px; height: 16px; background: #110e0e; border-radius: 50%; }
+    .reel-spoke { position: absolute; width: 100%; height: 3px; background: #110e0e; }
     .reel-spoke:nth-child(2) { transform: rotate(60deg); }
     .reel-spoke:nth-child(3) { transform: rotate(120deg); }
 
 
-    /* Spinning Animation */
-    .spinning {
-      animation: spin 3s linear infinite;
-    }
+    .spinning { animation: spin 2.5s linear infinite; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
 
 
-    @keyframes spin {
-      100% { transform: rotate(360deg); }
-    }
+    .tape-bridge { width: 50px; height: 16px; background: #362f2e; border-radius: 4px; }
 
 
-    .tape-bridge {
-      width: 60px;
-      height: 20px;
-      background: #504341;
-      border-radius: 4px;
-    }
+    .track-info { text-align: center; width: 100%; }
+    .track-title { font-size: 1.1rem; font-weight: 700; color: var(--text-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .track-subtitle { font-size: 0.85rem; color: var(--text-light); margin-top: 2px; }
 
 
-    /* Track Display */
-    .track-info {
-      text-align: center;
-      width: 100%;
-    }
-
-
-    .track-title {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--text-dark);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-
-    .track-subtitle {
-      font-size: 0.85rem;
-      color: var(--text-light);
-      margin-top: 4px;
-    }
-
-
-    /* Controls & Selectors */
-    .controls-group {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
+    /* Controls & Selectors (Fixation du texte clair/sombre) */
+    .controls-group { display: flex; flex-direction: column; gap: 10px; }
 
 
     .select-box {
       width: 100%;
       padding: 12px;
-      border-radius: 14px;
-      border: 2px solid rgba(255,255,255,0.8);
-      background: #ffffff;
-      color: var(--text-dark);
+      border-radius: 12px;
+      border: 2px solid rgba(255,255,255,0.2);
+      background-color: var(--input-bg) !important;
+      color: var(--input-text) !important;
       font-size: 0.9rem;
       font-weight: 600;
       outline: none;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.03);
       cursor: pointer;
+    }
+
+
+    .select-box option {
+      background-color: var(--input-bg) !important;
+      color: var(--input-text) !important;
     }
 
 
@@ -207,11 +278,7 @@
     }
 
 
-    .progress-range {
-      flex: 1;
-      accent-color: var(--accent-pink);
-      cursor: pointer;
-    }
+    .progress-range { flex: 1; accent-color: var(--accent); cursor: pointer; }
 
 
     .buttons-row {
@@ -219,91 +286,110 @@
       justify-content: center;
       align-items: center;
       gap: 16px;
-      margin-top: 6px;
     }
 
 
     .btn {
       border: none;
-      background: #ffffff;
-      color: var(--text-dark);
+      background: var(--input-bg);
+      color: var(--input-text);
       border-radius: 50%;
       cursor: pointer;
       display: flex;
       justify-content: center;
       align-items: center;
-      box-shadow: 0 6px 14px rgba(0,0,0,0.06);
-      transition: all 0.15s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      transition: transform 0.1s ease;
     }
 
 
-    .btn:active {
-      transform: scale(0.92);
+    .btn:active { transform: scale(0.92); }
+    .btn-small { width: 46px; height: 46px; font-size: 1rem; }
+    .btn-large { width: 60px; height: 60px; font-size: 1.3rem; background: var(--accent); color: #ffffff; }
+
+
+    /* Navigation Smart TV & Accessibilité */
+    *:focus-visible, *.tv-focused {
+      outline: 3px solid var(--focus-ring) !important;
+      outline-offset: 3px !important;
     }
-
-
-    .btn-small { width: 44px; height: 44px; font-size: 1rem; }
-    .btn-large { width: 62px; height: 62px; font-size: 1.4rem; background: var(--accent-pink); color: #fff; }
-
-
   </style>
 </head>
-<body>
+<body class="theme-pink">
 
 
   <div class="app-container">
-    <div class="app-header">Retro Quran Player</div>
+    <!-- Barre supérieure -->
+    <div class="top-bar">
+      <div class="app-title" id="appTitle">Retro Quran</div>
+
+
+      <button class="lang-btn tv-focusable" id="langToggle" tabindex="0">
+        <span id="langFlag">🇲🇦</span> <span id="langText">العربية</span>
+      </button>
+    </div>
+
+
+    <!-- 10 Thèmes intégrés -->
+    <div class="theme-picker">
+      <div class="theme-dot dot-pink tv-focusable" title="Vintage Pink" tabindex="0" onclick="setTheme('theme-pink')"></div>
+      <div class="theme-dot dot-mint tv-focusable" title="Mint Green" tabindex="0" onclick="setTheme('theme-mint')"></div>
+      <div class="theme-dot dot-amber tv-focusable" title="Moroccan Amber" tabindex="0" onclick="setTheme('theme-amber')"></div>
+      <div class="theme-dot dot-cream tv-focusable" title="Classic Cream" tabindex="0" onclick="setTheme('theme-cream')"></div>
+      <div class="theme-dot dot-cyber tv-focusable" title="Cyber Neon" tabindex="0" onclick="setTheme('theme-cyber')"></div>
+      <div class="theme-dot dot-ocean tv-focusable" title="Ocean Wave" tabindex="0" onclick="setTheme('theme-ocean')"></div>
+      <div class="theme-dot dot-gold tv-focusable" title="Midnight Gold" tabindex="0" onclick="setTheme('theme-gold')"></div>
+      <div class="theme-dot dot-lavender tv-focusable" title="Lavender Dream" tabindex="0" onclick="setTheme('theme-lavender')"></div>
+      <div class="theme-dot dot-sunset tv-focusable" title="Sunset Orange" tabindex="0" onclick="setTheme('theme-sunset')"></div>
+      <div class="theme-dot dot-emerald tv-focusable" title="Emerald Forest" tabindex="0" onclick="setTheme('theme-emerald')"></div>
+    </div>
 
 
     <!-- Cassette UI -->
     <div class="cassette-deck">
       <div class="tape-window">
         <div class="reel" id="reelLeft">
-          <div class="reel-spoke"></div>
-          <div class="reel-spoke"></div>
-          <div class="reel-spoke"></div>
+          <div class="reel-spoke"></div><div class="reel-spoke"></div><div class="reel-spoke"></div>
           <div class="reel-center"></div>
         </div>
         <div class="tape-bridge"></div>
         <div class="reel" id="reelRight">
-          <div class="reel-spoke"></div>
-          <div class="reel-spoke"></div>
-          <div class="reel-spoke"></div>
+          <div class="reel-spoke"></div><div class="reel-spoke"></div><div class="reel-spoke"></div>
           <div class="reel-center"></div>
         </div>
       </div>
 
 
       <div class="track-info">
-        <div class="track-title" id="displaySurah">Select Surah</div>
-        <div class="track-subtitle" id="displayReciter">Loading Reciters...</div>
+        <div class="track-title" id="displaySurah">---</div>
+        <div class="track-subtitle" id="displayReciter">---</div>
       </div>
     </div>
 
 
     <!-- Controls -->
     <div class="controls-group">
-      <select id="reciterSelect" class="select-box">
-        <option value="">Fetching Reciters...</option>
+      <select id="reciterSelect" class="select-box tv-focusable" tabindex="0">
+        <option value="">Chargement...</option>
       </select>
 
 
-      <select id="surahSelect" class="select-box">
-        <option value="">Select Surah</option>
+      <select id="surahSelect" class="select-box tv-focusable" tabindex="0">
+        <option value="">Choisir Sourate</option>
       </select>
 
 
       <div class="time-bar">
         <span id="currentTime">0:00</span>
-        <input type="range" id="progressBar" class="progress-range" value="0" min="0" max="100">
+        <input type="range" id="progressBar" class="progress-range tv-focusable" tabindex="0" value="0" min="0" max="100">
         <span id="durationTime">0:00</span>
       </div>
 
 
       <div class="buttons-row">
-        <button class="btn btn-small" id="prevBtn">⏮</button>
-        <button class="btn btn-large" id="playBtn">▶</button>
-        <button class="btn btn-small" id="nextBtn">⏭</button>
+        <button class="btn btn-small tv-focusable" id="prevBtn" tabindex="0">⏮</button>
+        <button class="btn btn-large tv-focusable" id="playBtn" tabindex="0">▶</button>
+        <button class="btn btn-small tv-focusable" id="nextBtn" tabindex="0">⏭</button>
       </div>
     </div>
   </div>
@@ -327,22 +413,75 @@
     const progressBar = document.getElementById('progressBar');
     const currentTimeEl = document.getElementById('currentTime');
     const durationTimeEl = document.getElementById('durationTime');
+    const langToggle = document.getElementById('langToggle');
 
 
     let recitersData = [];
     let currentServer = "";
     let availableSurahs = [];
+    let currentLang = 'fr';
 
 
-    // Fetch Reciters from API
+    const i18n = {
+      fr: {
+        title: "Retro Quran",
+        langBtnText: "العربية",
+        langFlag: "🇲🇦",
+        chooseReciter: "Choisissez un Récitateur",
+        reciterDefault: "-- Sélectionner Récitateur --",
+        surahDefault: "-- Sélectionner Sourate --",
+        surahPrefix: "Sourate",
+        netError: "Erreur réseau"
+      },
+      ar: {
+        title: "القرآن الكريم",
+        langBtnText: "Français",
+        langFlag: "🇫🇷",
+        chooseReciter: "اختر قارئاً",
+        reciterDefault: "-- اختر القارئ --",
+        surahDefault: "-- اختر السورة --",
+        surahPrefix: "سورة",
+        netError: "خطأ في الاتصال"
+      }
+    };
+
+
+    function setTheme(themeName) {
+      document.body.className = themeName;
+    }
+
+
+    langToggle.addEventListener('click', () => {
+      currentLang = currentLang === 'fr' ? 'ar' : 'fr';
+      document.documentElement.lang = currentLang;
+      document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+
+      updateUI();
+      loadReciters();
+    });
+
+
+    function updateUI() {
+      const t = i18n[currentLang];
+      document.getElementById('appTitle').textContent = t.title;
+      document.getElementById('langText').textContent = t.langBtnText;
+      document.getElementById('langFlag').textContent = t.langFlag;
+      displayReciter.textContent = t.chooseReciter;
+      displaySurah.textContent = t.surahDefault;
+    }
+
+
     async function loadReciters() {
       try {
-        const res = await fetch(`${API_BASE}/reciters?language=eng`);
+        const langApi = currentLang === 'ar' ? 'ar' : 'eng';
+        const res = await fetch(`${API_BASE}/reciters?language=${langApi}`);
         const data = await res.json();
         recitersData = data.reciters;
 
 
-        reciterSelect.innerHTML = '<option value="">-- Choose Reciter --</option>';
+        const t = i18n[currentLang];
+        reciterSelect.innerHTML = `<option value="">${t.reciterDefault}</option>`;
+
         recitersData.forEach((r, idx) => {
           if (r.moshaf && r.moshaf.length > 0) {
             const option = document.createElement('option');
@@ -351,14 +490,12 @@
             reciterSelect.appendChild(option);
           }
         });
-        displayReciter.textContent = "Choose a Reciter";
       } catch (err) {
-        displayReciter.textContent = "Error loading reciters";
+        displayReciter.textContent = i18n[currentLang].netError;
       }
     }
 
 
-    // Load Surah List for selected reciter
     reciterSelect.addEventListener('change', (e) => {
       const idx = e.target.value;
       if (idx === "") return;
@@ -366,69 +503,66 @@
 
       const reciter = recitersData[idx];
       displayReciter.textContent = reciter.name;
-      
+
       const moshaf = reciter.moshaf[0];
       currentServer = moshaf.server;
       availableSurahs = moshaf.surah_list.split(',').map(Number);
 
 
-      surahSelect.innerHTML = '<option value="">-- Choose Surah --</option>';
+      const t = i18n[currentLang];
+      surahSelect.innerHTML = `<option value="">${t.surahDefault}</option>`;
+
       availableSurahs.forEach(surahNum => {
         const option = document.createElement('option');
         option.value = surahNum;
-        option.textContent = `Surah ${surahNum}`;
+        option.textContent = `${t.surahPrefix} ${surahNum}`;
         surahSelect.appendChild(option);
       });
     });
 
 
-    // Play Selected Surah
     surahSelect.addEventListener('change', (e) => {
       const surahNum = e.target.value;
       if (!surahNum || !currentServer) return;
 
 
       const formattedNum = String(surahNum).padStart(3, '0');
-      const audioUrl = `${currentServer}${formattedNum}.mp3`;
-      
-      audioPlayer.src = audioUrl;
-      displaySurah.textContent = `Surah ${surahNum}`;
+      audioPlayer.src = `${currentServer}${formattedNum}.mp3`;
+
+      const t = i18n[currentLang];
+      displaySurah.textContent = `${t.surahPrefix} ${surahNum}`;
       audioPlayer.play();
-      updatePlayButton(true);
+      updatePlayState(true);
     });
 
 
-    // Controls Logic
     playBtn.addEventListener('click', () => {
       if (!audioPlayer.src) return;
       if (audioPlayer.paused) {
         audioPlayer.play();
-        updatePlayButton(true);
+        updatePlayState(true);
       } else {
         audioPlayer.pause();
-        updatePlayButton(false);
+        updatePlayState(false);
       }
     });
 
 
-    function updatePlayButton(isPlaying) {
+    function updatePlayState(isPlaying) {
+      playBtn.textContent = isPlaying ? '⏸' : '▶';
       if (isPlaying) {
-        playBtn.textContent = '⏸';
         reelLeft.classList.add('spinning');
         reelRight.classList.add('spinning');
       } else {
-        playBtn.textContent = '▶';
         reelLeft.classList.remove('spinning');
         reelRight.classList.remove('spinning');
       }
     }
 
 
-    // Audio Progress & Formatting
     audioPlayer.addEventListener('timeupdate', () => {
       if (audioPlayer.duration) {
-        const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
-        progressBar.value = progress;
+        progressBar.value = (audioPlayer.currentTime / audioPlayer.duration) * 100;
         currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
         durationTimeEl.textContent = formatTime(audioPlayer.duration);
       }
@@ -442,19 +576,16 @@
     });
 
 
-    audioPlayer.addEventListener('ended', () => {
-      updatePlayButton(false);
-    });
+    audioPlayer.addEventListener('ended', () => updatePlayState(false));
 
 
-    function formatTime(seconds) {
-      const mins = Math.floor(seconds / 60);
-      const secs = Math.floor(seconds % 60);
-      return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    function formatTime(secs) {
+      const m = Math.floor(secs / 60);
+      const s = Math.floor(secs % 60);
+      return `${m}:${s < 10 ? '0' : ''}${s}`;
     }
 
 
-    // Previous / Next Track Buttons
     nextBtn.addEventListener('click', () => {
       if (surahSelect.selectedIndex < surahSelect.options.length - 1) {
         surahSelect.selectedIndex++;
@@ -471,7 +602,54 @@
     });
 
 
-    // Initialize App
+    /* Navigation Télécommande Smart TV */
+    window.addEventListener('keydown', (e) => {
+      const focusables = Array.from(document.querySelectorAll('.tv-focusable'));
+      let index = focusables.indexOf(document.activeElement);
+
+
+      switch (e.key) {
+        case 'ArrowRight':
+        case 'ArrowDown':
+          if (document.activeElement.tagName === 'INPUT' && document.activeElement.type === 'range') return;
+          e.preventDefault();
+          index = (index + 1) % focusables.length;
+          focusables[index].focus();
+          break;
+        case 'ArrowLeft':
+        case 'ArrowUp':
+          if (document.activeElement.tagName === 'INPUT' && document.activeElement.type === 'range') return;
+          e.preventDefault();
+          index = (index - 1 + focusables.length) % focusables.length;
+          focusables[index].focus();
+          break;
+        case 'Enter':
+          const el = document.activeElement;
+          if (el && el.tagName === 'DIV' && el.classList.contains('theme-dot')) {
+            e.preventDefault();
+            el.click();
+          }
+          break;
+        case 'MediaPlayPause':
+        case 'MediaPlay':
+        case 'MediaPause':
+          e.preventDefault();
+          playBtn.click();
+          break;
+        case 'MediaTrackNext':
+          e.preventDefault();
+          nextBtn.click();
+          break;
+        case 'MediaTrackPrevious':
+          e.preventDefault();
+          prevBtn.click();
+          break;
+      }
+    });
+
+
+    // Initialisation
+    updateUI();
     loadReciters();
   </script>
 </body>

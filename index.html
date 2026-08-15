@@ -189,11 +189,12 @@
 
     .spool-wrapper {
       position: relative;
-      width: 40px;
-      height: 40px;
+      width: 40px !important;
+      height: 40px !important;
       display: flex;
       justify-content: center;
       align-items: center;
+      flex-shrink: 0 !important;
     }
 
 
@@ -207,8 +208,8 @@
 
     /* --- Reel GPU Compositing & Counter-Clockwise Spin --- */
     .reel {
-      width: 32px;
-      height: 32px;
+      width: 32px !important;
+      height: 32px !important;
       background: #ffffff;
       border-radius: 50%;
       border: 4px solid #000;
@@ -219,11 +220,17 @@
       align-items: center;
       transform-origin: center;
       will-change: transform;
+      flex-shrink: 0 !important;
+      transform-box: fill-box !important;
     }
     .reel-center { width: 10px; height: 10px; background: #000; border-radius: 50%; }
     .reel-spoke { position: absolute; width: 100%; height: 2px; background: #000; }
     .reel-spoke:nth-child(2) { transform: rotate(60deg); }
     .reel-spoke:nth-child(3) { transform: rotate(120deg); }
+    .reel svg,
+    .reel-spoke {
+      transform-box: fill-box !important;
+    }
     
     @keyframes spin-reverse {
       from { transform: rotate(0deg); }
@@ -455,6 +462,8 @@
       max-height: 50vh;
       scroll-behavior: smooth;
       overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      outline: none;
     }
 
 
@@ -536,7 +545,14 @@
     .settings-shortcut:hover { color: var(--gold-1); }
 
 
-    *:focus-visible, *.tv-focused { outline: 2px solid var(--focus-ring) !important; outline-offset: 2px !important; }
+    /* --- TV HARDENING: high-contrast D-Pad focus rings --- */
+    *:focus-visible,
+    .tv-focusable:focus,
+    .dropdown-item:focus {
+      outline: 3px solid #ffe66d !important;
+      outline-offset: 2px !important;
+      border-radius: 8px;
+    }
   </style>
 </head>
 <body>
@@ -1284,6 +1300,7 @@
       });
       surahOptionsList.appendChild(li);
     });
+    surahOptionsList.tabIndex = 0;
   }
 
 
@@ -1377,6 +1394,7 @@
       });
       reciterOptionsList.appendChild(li);
     });
+    reciterOptionsList.tabIndex = 0;
   }
 
 

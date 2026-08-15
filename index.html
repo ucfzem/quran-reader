@@ -212,6 +212,9 @@
 
 
     langToggle.addEventListener('click', async () => {
+      const savedServer = currentServer;
+      const savedSurah = surahSelect.value;
+
       currentLang = currentLang === 'fr' ? 'ar' : 'fr';
       document.documentElement.lang = currentLang;
       document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
@@ -225,7 +228,43 @@
 
 
       await loadReciters();
+
+
+      // Restore the currently playing reciter/edition (matched by server URL, index shifts between languages)
+      if (savedServer) {
+        const idx = parsedRecitersList.findIndex((item) => item.server === savedServer);
+        if (idx !== -1) {
+          reciterSelect.value = idx;
+          displayReciter.textContent = parsedRecitersList[idx].name;
+          currentServer = parsedRecitersList[idx].server;
+          populateSurahOptions(parsedRecitersList[idx].surahList, savedSurah);
+          if (savedSurah) {
+            const opt = surahSelect.querySelector(`option[value="${savedSurah}"]`);
+            if (opt) displaySurah.textContent = opt.textContent;
+          }
+        }
+      }
     });
+
+
+    function populateSurahOptions(surahIds, selectedId) {
+      const defaultText = currentLang === 'ar' ? "-- اختر السورة --" : "-- Sélectionner Sourate --";
+      surahSelect.innerHTML = `<option value="">${defaultText}</option>`;
+
+
+      surahIds.forEach(id => {
+        const opt = document.createElement('option');
+        opt.value = id;
+        const arabicName = SURAH_NAMES_AR[id - 1] || `Sourate ${id}`;
+        opt.textContent = currentLang === 'ar'
+          ? `${id}. سورة ${arabicName}`
+          : `Sourate ${id} - ${arabicName}`;
+        surahSelect.appendChild(opt);
+      });
+
+
+      if (selectedId) surahSelect.value = selectedId;
+    }
 
 
     reciterSelect.addEventListener('change', (e) => {
@@ -238,22 +277,7 @@
 
 
       currentServer = selectedReciter.server;
-      const availableSurahs = selectedReciter.surahList;
-
-
-      const defaultText = currentLang === 'ar' ? "-- اختر السورة --" : "-- Sélectionner Sourate --";
-      surahSelect.innerHTML = `<option value="">${defaultText}</option>`;
-
-
-      availableSurahs.forEach(id => {
-        const opt = document.createElement('option');
-        opt.value = id;
-        const arabicName = SURAH_NAMES_AR[id - 1] || `Sourate ${id}`;
-        opt.textContent = currentLang === 'ar'
-          ? `${id}. سورة ${arabicName}`
-          : `Sourate ${id} - ${arabicName}`;
-        surahSelect.appendChild(opt);
-      });
+      populateSurahOptions(selectedReciter.surahList);
     });
 
 
@@ -321,7 +345,14 @@
     });
 
 
-    audioPlayer.addEventListener('ended', () => updatePlayState(false));
+    audioPlayer.addEventListener('ended', () => {
+      updatePlayState(false);
+      if (surahSelect.options.length <= 1) return;
+      let next = surahSelect.selectedIndex + 1;
+      if (next > surahSelect.options.length - 1) next = 1;
+      surahSelect.selectedIndex = next;
+      surahSelect.dispatchEvent(new Event('change'));
+    });
 
 
     function formatTime(secs) {
@@ -332,18 +363,22 @@
 
 
     nextBtn.addEventListener('click', () => {
-      if (surahSelect.selectedIndex < surahSelect.options.length - 1) {
-        surahSelect.selectedIndex++;
-        surahSelect.dispatchEvent(new Event('change'));
-      }
+      if (surahSelect.options.length <= 1) return;
+      let next = surahSelect.selectedIndex + 1;
+      if (next > surahSelect.options.length - 1) next = 1;
+      surahSelect.selectedIndex = next;
+      surahSelect.dispatchEvent(new Event('change'));
     });
 
 
     prevBtn.addEventListener('click', () => {
-      if (surahSelect.selectedIndex > 1) {
+      if (surahSelect.options.length <= 1) return;
+      if (surahSelect.selectedIndex <= 1) {
+        surahSelect.selectedIndex = surahSelect.options.length - 1;
+      } else {
         surahSelect.selectedIndex--;
-        surahSelect.dispatchEvent(new Event('change'));
       }
+      surahSelect.dispatchEvent(new Event('change'));
     });
 
 
@@ -356,16 +391,16 @@
       switch (e.key) {
         case 'ArrowRight':
         case 'ArrowDown':
-          if (document.activeElement.tagName === 'INPUT' && document.activeElement.type === 'range') return;
-          e.preventDefault();
-          index = (index + 1) % focusables.length;
-          focusables[index].focus();
-          break;
         case 'ArrowLeft':
         case 'ArrowUp':
-          if (document.activeElement.tagName === 'INPUT' && document.activeElement.type === 'range') return;
+          const ae = document.activeElement;
+          if (ae && (ae.tagName === 'SELECT' || (ae.tagName === 'INPUT' && ae.type === 'range'))) return;
           e.preventDefault();
-          index = (index - 1 + focusables.length) % focusables.length;
+          if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+            index = (index + 1) % focusables.length;
+          } else {
+            index = (index - 1 + focusables.length) % focusables.length;
+          }
           focusables[index].focus();
           break;
         case 'MediaPlayPause':

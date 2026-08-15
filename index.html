@@ -132,11 +132,12 @@
     const themeIcon = document.getElementById('themeIcon');
 
 
+    var parsedRecitersList = [];
     let currentServer = "";
     let currentLang = 'fr';
-    var parsedRecitersList = [];
 
 
+    // Array containing exact Arabic names for all 114 Surahs
     var SURAH_NAMES_AR = [
       "الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس",
       "هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه",
@@ -174,7 +175,7 @@
         parsedRecitersList = [];
 
 
-        // Flatten reciters & individual moshaf editions to prevent duplicated names pointing to the same audio
+        // Parse and isolate each available moshaf edition
         data.reciters.forEach((reciter) => {
           if (reciter.moshaf && reciter.moshaf.length > 0) {
             reciter.moshaf.forEach((m) => {
@@ -193,7 +194,6 @@
         });
 
 
-        // Sort alphabetically
         parsedRecitersList.sort((a, b) => a.name.localeCompare(b.name));
 
 
@@ -267,8 +267,17 @@
 
 
       displaySurah.textContent = e.target.options[e.target.selectedIndex].text;
-      audioPlayer.play();
+      audioPlayer.play().catch(err => {
+        console.warn("Audio playback issue:", err);
+      });
       updatePlayState(true);
+    });
+
+
+    // Auto-detect unavailable streams on audio error
+    audioPlayer.addEventListener('error', () => {
+      updatePlayState(false);
+      displaySurah.textContent = currentLang === 'ar' ? "غير متوفر حالياً" : "Fichier non disponible";
     });
 
 

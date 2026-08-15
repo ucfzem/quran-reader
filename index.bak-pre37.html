@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="fr" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hi-Fi Retro Quran Walkman</title>
+  <style>
+    :root {
+      --bg-color: #0d0f12;
+      --body-grad: linear-gradient(145deg, #232830, #14171c);
+      --border-color: #38404d;
+      --panel-bg: rgba(0, 0, 0, 0.4);
+      --text-main: #f1f5f9;
+      --text-sub: #94a3b8;
+      --gold-1: #f3e0aa;
+      --gold-2: #d4af37;
+      --gold-3: #aa7c11;
+      --knob-grad: linear-gradient(145deg, #2d3440, #1a1e25);
+      --knob-shadow: 0 6px 14px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.25);
+      --focus-ring: #d4af37;
+    }
+
+
+    body.light-mode {
+      --bg-color: #e2e8f0;
+      --body-grad: linear-gradient(145deg, #ffffff, #cbd5e1);
+      --border-color: #94a3b8;
+      --panel-bg: rgba(255, 255, 255, 0.5);
+      --text-main: #0f172a;
+      --text-sub: #475569;
+      --knob-grad: linear-gradient(145deg, #ffffff, #e2e8f0);
+      --knob-shadow: 0 6px 12px rgba(0,0,0,0.15), inset 0 1px 2px rgba(255,255,255,0.9);
+      --focus-ring: #b8860b;
+    }
+
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      transition: background-color 0.3s ease;
+    }
+
+
+    /* Boîtier Walkman */
+    .walkman-container {
+      width: 100%;
+      max-width: 380px;
+      background: var(--body-grad);
+      border-radius: 42px;
+      padding: 24px 20px 32px 20px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.7), inset 0 2px 3px rgba(255,255,255,0.2);
+      border: 4px solid var(--border-color);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+
+    /* Boutons latéraux physiques */
+    .walkman-container::before {
+      content: ''; position: absolute; right: -12px; top: 110px; width: 8px; height: 55px;
+      background: var(--border-color); border-radius: 0 4px 4px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+    }
+    .walkman-container::after {
+      content: ''; position: absolute; right: -12px; top: 210px; width: 8px; height: 75px;
+      background: var(--border-color); border-radius: 0 4px 4px 0; box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+    }
+
+
+    /* En-tête */
+    .brand-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 4px;
+    }
+    .brand-title {
+      font-weight: 900;
+      font-size: 0.95rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-sub);
+    }
+    .top-controls { display: flex; gap: 8px; }
+    .icon-btn {
+      background: var(--panel-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      border-radius: 20px;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+
+    /* DECK CASSETTE RETRO */
+    .cassette-housing {
+      background: #0a0c0e;
+      border-radius: 22px;
+      padding: 12px;
+      border: 3px solid #252a33;
+      box-shadow: inset 0 6px 15px rgba(0,0,0,0.9);
+      position: relative;
+    }
+
+
+    .cassette-tape {
+      width: 100%;
+      height: 140px;
+      background: linear-gradient(180deg, #1f242d 0%, #111318 100%);
+      border-radius: 12px;
+      border: 2px solid #363e4d;
+      position: relative;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+
+    /* Vis aux coins de la cassette */
+    .screw {
+      position: absolute; width: 6px; height: 6px; background: #64748b; border-radius: 50%;
+      box-shadow: inset 0 1px 1px rgba(0,0,0,0.8);
+    }
+    .screw.tl { top: 6px; left: 6px; } .screw.tr { top: 6px; right: 6px; }
+    .screw.bl { bottom: 6px; left: 6px; } .screw.br { bottom: 6px; right: 6px; }
+
+
+    /* Étiquette Cassette avec Calligraphie */
+    .cassette-label {
+      background: linear-gradient(135deg, #181d24 0%, #2a313d 100%);
+      border: 1px solid #475569;
+      height: 72px;
+      border-radius: 8px;
+      padding: 4px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+    }
+
+
+    .calligraphy-container {
+      width: 130px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+
+    .tape-side-mark {
+      font-weight: 900;
+      font-size: 1.2rem;
+      background: linear-gradient(180deg, var(--gold-1), var(--gold-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+
+    /* Fenêtre Cassette et Bobines */
+    .tape-window {
+      width: 140px;
+      height: 52px;
+      background: #050607;
+      border-radius: 26px;
+      border: 2px solid #475569;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 6px;
+      position: relative;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+
+
+    .tape-window::after {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 50%);
+      pointer-events: none;
+    }
+
+
+    .spool-wrapper {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+
+    .tape-roll {
+      position: absolute;
+      background: #3d271d;
+      border-radius: 50%;
+      transition: width 0.3s ease, height 0.3s ease;
+    }
+
+
+    .reel {
+      width: 32px;
+      height: 32px;
+      background: #ffffff;
+      border-radius: 50%;
+      border: 4px solid #000;
+      position: relative;
+      z-index: 2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .reel-center { width: 10px; height: 10px; background: #000; border-radius: 50%; }
+    .reel-spoke { position: absolute; width: 100%; height: 2px; background: #000; }
+    .reel-spoke:nth-child(2) { transform: rotate(60deg); }
+    .reel-spoke:nth-child(3) { transform: rotate(120deg); }
+    .spinning { animation: spin 2.2s linear infinite; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+
+    /* Panneau d'informations */
+    .track-panel {
+      background: var(--panel-bg);
+      border-radius: 18px;
+      padding: 12px 16px;
+      border: 1px solid var(--border-color);
+    }
+    .track-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .track-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+      display: block;
+    }
+
+
+    /* Visualiseur audio réactif */
+    .equalizer-container {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 4px;
+      height: 32px;
+      margin: 10px 0 6px 0;
+      background: rgba(0,0,0,0.2);
+      padding: 4px;
+      border-radius: 8px;
+    }
+    .eq-bar {
+      flex: 1;
+      max-width: 8px;
+      background: linear-gradient(180deg, var(--gold-1), var(--gold-2));
+      border-radius: 3px;
+      height: 10%;
+      min-height: 4px;
+      transition: height 0.08s linear;
+    }
+
+
+    /* Selectors */
+    .select-box {
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      background-color: var(--panel-bg) !important;
+      color: var(--text-main) !important;
+      font-size: 0.85rem;
+      font-weight: 600;
+      outline: none;
+      color-scheme: dark;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .select-box option { background-color: #1f2937 !important; color: #f3f4f6 !important; }
+    body.light-mode .select-box { color-scheme: light; }
+    body.light-mode .select-box option { background-color: #ffffff !important; color: #111111 !important; }
+
+
+    /* Barre de temps */
+    .time-bar { display: flex; align-items: center; gap: 8px; font-size: 0.72rem; color: var(--text-sub); font-weight: 700; }
+    .progress-range { flex: 1; accent-color: var(--gold-2); cursor: pointer; }
+
+
+    /* Boutons métalliques physiques */
+    .knobs-container {
+      display: flex;
+      justify-content: space-around;
+      align-items: flex-end;
+      margin-top: 6px;
+      padding: 0 8px;
+    }
+    .knob-wrapper { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .knob-btn {
+      border: 2px solid var(--border-color);
+      background: var(--knob-grad);
+      color: var(--text-main);
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: var(--knob-shadow);
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+    .knob-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+    .knob-small { width: 46px; height: 46px; font-size: 0.95rem; }
+    .knob-large { width: 60px; height: 60px; font-size: 1.25rem; border-color: var(--gold-2); }
+    .knob-label { font-size: 0.65rem; font-weight: 800; letter-spacing: 1px; color: var(--text-sub); }
+    .settings-shortcut {
+      display: block;
+      text-align: center;
+      margin: 14px auto 0;
+      font-size: 0.7rem;
+      color: var(--text-sub);
+      text-decoration: none;
+      letter-spacing: 0.5px;
+      transition: color 0.3s;
+    }
+    .settings-shortcut:hover { color: var(--gold-1); }
+
+
+    *:focus-visible, *.tv-focused { outline: 2px solid var(--focus-ring) !important; outline-offset: 2px !important; }
+  </style>
+</head>
+<body>
+
+
+  <div class="walkman-container">
+
+    <div class="brand-header">
+      <div class="brand-title" id="appTitle">HI-FI WALKMAN</div>
+      <div class="top-controls">
+        <button class="icon-btn tv-focusable" id="themeToggle" tabindex="0"><span id="themeIcon">☀️</span></button>
+        <button class="icon-btn tv-focusable" id="langToggle" tabindex="0"><span id="langFlag">🇲🇦</span> <span id="langText">العربية</span></button>
+      </div>
+    </div>
+
+
+    <div class="cassette-housing">
+      <div class="cassette-tape">
+        <div class="screw tl"></div><div class="screw tr"></div>
+        <div class="screw bl"></div><div class="screw br"></div>
+
+
+        <div class="cassette-label">
+          <span class="tape-side-mark">A</span>
+
+          <div class="calligraphy-container">
+            <svg viewBox="0 0 260 60" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#f3e0aa" />
+                  <stop offset="50%" stop-color="#d4af37" />
+                  <stop offset="100%" stop-color="#aa7c11" />
+                </linearGradient>
+              </defs>
+              <g fill="url(#goldGrad)">
+                <text x="50%" y="60%" dominant-baseline="middle" text-anchor="middle" font-family="'Amiri', 'Traditional Arabic', serif" font-weight="900" font-size="34" letter-spacing="1">القرآن الكريم</text>
+              </g>
+            </svg>
+          </div>
+
+
+          <span class="tape-side-mark">A</span>
+        </div>
+
+
+        <div class="tape-window">
+          <div class="spool-wrapper">
+            <div class="tape-roll" id="rollLeft" style="width: 38px; height: 38px;"></div>
+            <div class="reel" id="reelLeft"><div class="reel-spoke"></div><div class="reel-spoke"></div><div class="reel-spoke"></div><div class="reel-center"></div></div>
+          </div>
+
+
+          <div class="spool-wrapper">
+            <div class="tape-roll" id="rollRight" style="width: 32px; height: 32px;"></div>
+            <div class="reel" id="reelRight"><div class="reel-spoke"></div><div class="reel-spoke"></div><div class="reel-spoke"></div><div class="reel-center"></div></div>
+          </div>
+        </div>
+
+
+      </div>
+    </div>
+
+
+    <div class="track-panel">
+      <div class="track-title" id="displaySurah">---</div>
+      <div class="track-subtitle" id="displayReciter">---</div>
+
+
+      <div class="equalizer-container" id="eqContainer">
+        <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+        <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+        <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+        <div class="eq-bar"></div><div class="eq-bar"></div><div class="eq-bar"></div>
+      </div>
+
+
+      <div class="time-bar">
+        <span id="currentTime">0:00</span>
+        <input type="range" id="progressBar" class="progress-range tv-focusable" tabindex="0" value="0" min="0" max="100">
+        <span id="durationTime">0:00</span>
+      </div>
+    </div>
+
+
+    <select id="reciterSelect" class="select-box tv-focusable" tabindex="0"></select>
+    <select id="surahSelect" class="select-box tv-focusable" tabindex="0"></select>
+
+
+    <div class="knobs-container">
+      <div class="knob-wrapper">
+        <button class="knob-btn knob-small tv-focusable" id="prevBtn" tabindex="0">⏮</button>
+        <span class="knob-label">PREV</span>
+      </div>
+      <div class="knob-wrapper">
+        <button class="knob-btn knob-large tv-focusable" id="playBtn" tabindex="0">▶</button>
+        <span class="knob-label">PLAY</span>
+      </div>
+      <div class="knob-wrapper">
+        <button class="knob-btn knob-small tv-focusable" id="nextBtn" tabindex="0">⏭</button>
+        <span class="knob-label">NEXT</span>
+      </div>
+    </div>
+
+
+    <a class="settings-shortcut tv-focusable" id="settingsShortcut" tabindex="0" href="intent:#Intent;action=android.settings.APPLICATION_DETAILS_SETTINGS;data=package:com.android.chrome;end">⚙️ Ouvrir les réglages Chrome</a>
+
+
+  </div>
+
+
+  <audio id="audioPlayer" crossOrigin="anonymous"></audio>
+
+
+  <script>
+    const API_BASE = "https://mp3quran.net/api/v3";
+    const audioPlayer = document.getElementById('audioPlayer');
+    const walkmanContainer = document.querySelector('.walkman-container');
+    const reciterSelect = document.getElementById('reciterSelect');
+    const surahSelect = document.getElementById('surahSelect');
+    const playBtn = document.getElementById('playBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const reelLeft = document.getElementById('reelLeft');
+    const reelRight = document.getElementById('reelRight');
+    const rollLeft = document.getElementById('rollLeft');
+    const rollRight = document.getElementById('rollRight');
+    const displaySurah = document.getElementById('displaySurah');
+    const displayReciter = document.getElementById('displayReciter');
+    const progressBar = document.getElementById('progressBar');
+    const currentTimeEl = document.getElementById('currentTime');
+    const durationTimeEl = document.getElementById('durationTime');
+    const langToggle = document.getElementById('langToggle');
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const eqBars = document.querySelectorAll('.eq-bar');
+
+
+    var parsedRecitersList = [];
+    let currentServer = "";
+    let currentLang = 'fr';
+
+
+    let audioCtx, analyser, source, dataArray;
+    let isWebAudioInitialized = false;
+
+
+    const SURAH_NAMES_AR = [
+      "الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس",
+      "هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه",
+      "الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم",
+      "لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر",
+      "فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق",
+      "الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة",
+      "الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج",
+      "نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس",
+      "التكوير","الإنفطار","المطففين","الإنشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد",
+      "الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات",
+      "القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر",
+      "المسد","الإخلاص","الفلق","الناس"
+    ];
+
+
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('light-mode');
+      const isLight = document.body.classList.contains('light-mode');
+      themeIcon.textContent = isLight ? '🌙' : '☀️';
+    });
+
+
+    function initAudioContext() {
+      if (isWebAudioInitialized) return;
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContext();
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 64;
+        source = audioCtx.createMediaElementSource(audioPlayer);
+        source.connect(analyser);
+        analyser.connect(audioCtx.destination);
+        dataArray = new Uint8Array(analyser.frequencyBinCount);
+        isWebAudioInitialized = true;
+      } catch (e) {
+        console.warn("Web Audio API restricted or fallback active:", e);
+      }
+    }
+
+
+    function updateVisualizer() {
+      requestAnimationFrame(updateVisualizer);
+
+
+      if (!audioPlayer.paused) {
+        if (isWebAudioInitialized && analyser) {
+          analyser.getByteFrequencyData(dataArray);
+          eqBars.forEach((bar, i) => {
+            const val = dataArray[i * 2] || 0;
+            const percent = Math.max(8, (val / 255) * 100);
+            bar.style.height = `${percent}%`;
+          });
+        } else {
+          eqBars.forEach((bar) => {
+            const randomVal = Math.floor(Math.random() * 75) + 15;
+            bar.style.height = `${randomVal}%`;
+          });
+        }
+      } else {
+        eqBars.forEach(bar => bar.style.height = '10%');
+      }
+    }
+    updateVisualizer();
+
+
+    async function loadReciters() {
+      try {
+        const langApi = currentLang === 'ar' ? 'ar' : 'eng';
+        const label = currentLang === 'ar' ? "-- اختر القارئ --" : "-- Sélectionner Récitateur --";
+
+        // Sauvegarder la sélection actuelle pour restaurer l'état
+        const prevReciterIdx = reciterSelect.value;
+        const prevSurahVal = surahSelect.value;
+
+
+        reciterSelect.innerHTML = `<option value="">${label}</option>`;
+        const res = await fetch(`${API_BASE}/reciters?language=${langApi}`);
+        const data = await res.json();
+
+
+        parsedRecitersList = [];
+        data.reciters.forEach((reciter) => {
+          if (reciter.moshaf && reciter.moshaf.length > 0) {
+            reciter.moshaf.forEach((m) => {
+              const displayName = reciter.moshaf.length > 1 ? `${reciter.name} (${m.name})` : reciter.name;
+              parsedRecitersList.push({ name: displayName, server: m.server, surahList: m.surah_list.split(',').map(Number) });
+            });
+          }
+        });
+
+
+        parsedRecitersList.sort((a, b) => a.name.localeCompare(b.name));
+        parsedRecitersList.forEach((item, index) => {
+          const opt = document.createElement('option');
+          opt.value = index;
+          opt.textContent = item.name;
+          reciterSelect.appendChild(opt);
+        });
+
+
+        // CORRECTIF #2 : Restauration de l'état lors du changement de langue
+        if (prevReciterIdx !== "" && parsedRecitersList[prevReciterIdx]) {
+          reciterSelect.value = prevReciterIdx;
+          populateSurahs(parsedRecitersList[prevReciterIdx].surahList);
+          if (prevSurahVal) {
+            surahSelect.value = prevSurahVal;
+          }
+        }
+        syncReciterDisplay();
+        syncSurahDisplay();
+
+
+      } catch (e) {
+        displayReciter.textContent = currentLang === 'ar' ? "خطأ في الاتصال" : "Erreur réseau";
+      }
+    }
+
+
+    function populateSurahs(availableSurahs) {
+      const defaultText = currentLang === 'ar' ? "-- اختر السورة --" : "-- Sélectionner Sourate --";
+      surahSelect.innerHTML = `<option value="">${defaultText}</option>`;
+
+
+      availableSurahs.forEach(id => {
+        const opt = document.createElement('option');
+        opt.value = id;
+        const arabicName = SURAH_NAMES_AR[id - 1] || `Sourate ${id}`;
+        opt.textContent = currentLang === 'ar' ? `${id}. سورة ${arabicName}` : `Sourate ${id} - ${arabicName}`;
+        surahSelect.appendChild(opt);
+      });
+    }
+
+
+    // Single source of truth: the display header always mirrors the selected dropdown option
+    function syncSurahDisplay() {
+      const idx = surahSelect.selectedIndex;
+      if (surahSelect.value === "" || idx === -1) {
+        displaySurah.textContent = currentLang === 'ar' ? "-- اختر السورة --" : "-- Sélectionner Sourate --";
+      } else {
+        displaySurah.textContent = surahSelect.options[idx].text;
+      }
+    }
+
+
+    function syncReciterDisplay() {
+      if (reciterSelect.value === "" || !parsedRecitersList[reciterSelect.value]) {
+        displayReciter.textContent = currentLang === 'ar' ? "اختر قارئاً" : "Choisissez un Récitateur";
+      } else {
+        displayReciter.textContent = parsedRecitersList[reciterSelect.value].name;
+      }
+    }
+
+
+    // Media Session : contrôle natif (verrou / écouteurs Bluetooth / notifications)
+    function updateMediaSession() {
+      if (!('mediaSession' in navigator)) return;
+
+
+      const currentSurah = surahSelect.options[surahSelect.selectedIndex]?.text || 'القرآن الكريم';
+      const currentReciter = reciterSelect.options[reciterSelect.selectedIndex]?.text || 'القارئ';
+
+
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: currentSurah,
+        artist: currentReciter,
+        album: 'القرآن الكريم - Walkman',
+        artwork: [
+          { src: 'https://via.placeholder.com/96x96', sizes: '96x96', type: 'image/png' },
+          { src: 'https://via.placeholder.com/512x512', sizes: '512x512', type: 'image/png' }
+        ]
+      });
+
+
+      navigator.mediaSession.setActionHandler('play', () => {
+        audioPlayer.play();
+      });
+      navigator.mediaSession.setActionHandler('pause', () => {
+        audioPlayer.pause();
+      });
+      navigator.mediaSession.setActionHandler('previoustrack', () => {
+        prevBtn.click();
+      });
+      navigator.mediaSession.setActionHandler('nexttrack', () => {
+        nextBtn.click();
+      });
+      navigator.mediaSession.setActionHandler('seekto', (details) => {
+        if (details.fastSeek && 'fastSeek' in audioPlayer) {
+          audioPlayer.fastSeek(details.seekTime);
+        } else {
+          audioPlayer.currentTime = details.seekTime;
+        }
+      });
+    }
+
+
+    // Persistance de l'état (localStorage)
+    const STORAGE_KEY = 'walkman_quran_state';
+
+
+    function savePlayerState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          reciter: reciterSelect.value,
+          surah: surahSelect.value,
+          time: audioPlayer.currentTime || 0
+        }));
+      } catch (e) { /* stockage indisponible */ }
+    }
+
+
+    function restorePlayerState() {
+      let saved;
+      try {
+        saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      } catch (e) { return; }
+      if (!saved) return;
+
+
+      if (saved.reciter && parsedRecitersList[saved.reciter]) {
+        reciterSelect.value = saved.reciter;
+        populateSurahs(parsedRecitersList[saved.reciter].surahList);
+        if (saved.surah && surahSelect.querySelector(`option[value="${saved.surah}"]`)) {
+          surahSelect.value = saved.surah;
+        } else {
+          surahSelect.value = "";
+        }
+        syncReciterDisplay();
+        syncSurahDisplay();
+        if (saved.time) audioPlayer.currentTime = saved.time;
+      }
+    }
+
+
+    langToggle.addEventListener('click', async () => {
+      currentLang = currentLang === 'fr' ? 'ar' : 'fr';
+      document.documentElement.lang = currentLang;
+      document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+
+
+      document.getElementById('appTitle').textContent = currentLang === 'ar' ? "القرآن الكريم" : "HI-FI WALKMAN";
+      document.getElementById('langText').textContent = currentLang === 'ar' ? "Français" : "العربية";
+      document.getElementById('langFlag').textContent = currentLang === 'ar' ? "🇫🇷" : "🇲🇦";
+
+
+      await loadReciters();
+    });
+
+
+    reciterSelect.addEventListener('change', (e) => {
+      const idx = e.target.value;
+
+      if (idx === "") {
+        currentServer = "";
+        surahSelect.innerHTML = `<option value="">${currentLang === 'ar' ? "-- اختر السورة --" : "-- Sélectionner Sourate --"}</option>`;
+        syncReciterDisplay();
+        syncSurahDisplay();
+        savePlayerState();
+        e.target.blur();
+        return;
+      }
+
+
+      const selectedReciter = parsedRecitersList[idx];
+      currentServer = selectedReciter.server;
+
+
+      populateSurahs(selectedReciter.surahList);
+      syncReciterDisplay();
+      syncSurahDisplay();
+      savePlayerState();
+      e.target.blur();
+    });
+
+
+    surahSelect.addEventListener('change', (e) => {
+      const surahNum = e.target.value;
+      syncSurahDisplay();
+      updateMediaSession();
+      savePlayerState();
+      e.target.blur();
+      if (!surahNum || !currentServer) return;
+
+
+      const formattedNum = String(surahNum).padStart(3, '0');
+      audioPlayer.src = `${currentServer}${formattedNum}.mp3`;
+
+      initAudioContext();
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
+
+      audioPlayer.play().catch(console.warn);
+      updatePlayState(true);
+    });
+
+
+    playBtn.addEventListener('click', () => {
+      if (!audioPlayer.src) return;
+
+
+      initAudioContext();
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
+
+      if (audioPlayer.paused) {
+        audioPlayer.play();
+        updatePlayState(true);
+      } else {
+        audioPlayer.pause();
+        updatePlayState(false);
+      }
+    });
+
+
+    function updatePlayState(isPlaying) {
+      playBtn.textContent = isPlaying ? '⏸' : '▶';
+      if (isPlaying) {
+        reelLeft.classList.add('spinning');
+        reelRight.classList.add('spinning');
+      } else {
+        reelLeft.classList.remove('spinning');
+        reelRight.classList.remove('spinning');
+      }
+    }
+
+
+    audioPlayer.addEventListener('timeupdate', () => {
+      if (audioPlayer.duration) {
+        const ratio = audioPlayer.currentTime / audioPlayer.duration;
+        progressBar.value = ratio * 100;
+        currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
+        durationTimeEl.textContent = formatTime(audioPlayer.duration);
+
+
+        const leftSize = Math.max(32, 40 - (ratio * 10));
+        const rightSize = Math.min(40, 32 + (ratio * 10));
+        rollLeft.style.width = `${leftSize}px`;
+        rollLeft.style.height = `${leftSize}px`;
+        rollRight.style.width = `${rightSize}px`;
+        rollRight.style.height = `${rightSize}px`;
+      }
+
+
+      if ('mediaSession' in navigator && 'setPositionState' in navigator.mediaSession) {
+        if (!isNaN(audioPlayer.duration) && audioPlayer.duration > 0) {
+          navigator.mediaSession.setPositionState({
+            duration: audioPlayer.duration,
+            playbackRate: audioPlayer.playbackRate,
+            position: audioPlayer.currentTime
+          });
+        }
+      }
+    });
+
+
+    audioPlayer.addEventListener('play', () => {
+      if (walkmanContainer) walkmanContainer.classList.add('is-playing');
+      updateMediaSession();
+      if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
+    });
+    audioPlayer.addEventListener('pause', () => {
+      if (walkmanContainer) walkmanContainer.classList.remove('is-playing');
+      savePlayerState();
+      if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
+    });
+
+
+    // Screen Wake Lock : garde l'écran allumé pendant la récitation
+    let wakeLock = null;
+
+
+    async function requestWakeLock() {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLock = await navigator.wakeLock.request('screen');
+        }
+      } catch (err) {
+        console.log(`Wake Lock Error: ${err.name}, ${err.message}`);
+      }
+    }
+
+
+    function releaseWakeLock() {
+      if (wakeLock !== null) {
+        wakeLock.release();
+        wakeLock = null;
+      }
+    }
+
+
+    audioPlayer.addEventListener('play', requestWakeLock);
+    audioPlayer.addEventListener('pause', releaseWakeLock);
+    audioPlayer.addEventListener('ended', releaseWakeLock);
+
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && !audioPlayer.paused && ('wakeLock' in navigator)) {
+        requestWakeLock();
+      }
+    });
+
+
+    progressBar.addEventListener('input', () => {
+      if (audioPlayer.duration) {
+        audioPlayer.currentTime = (progressBar.value / 100) * audioPlayer.duration;
+      }
+    });
+
+
+    // CORRECTIF #1 : Auto-advance fonctionnel à la fin du fichier
+    audioPlayer.addEventListener('ended', () => {
+      if (surahSelect.selectedIndex < surahSelect.options.length - 1) {
+        surahSelect.selectedIndex++;
+        surahSelect.dispatchEvent(new Event('change'));
+      } else {
+        updatePlayState(false);
+        savePlayerState();
+      }
+    });
+
+
+    function formatTime(secs) {
+      const m = Math.floor(secs / 60);
+      const s = Math.floor(secs % 60);
+      return `${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+
+
+    nextBtn.addEventListener('click', () => {
+      if (surahSelect.selectedIndex < surahSelect.options.length - 1) {
+        surahSelect.selectedIndex++;
+        surahSelect.dispatchEvent(new Event('change'));
+      }
+    });
+
+
+    // CORRECTIF #4 : Navigation jusqu'à la toute première sourate (index > 0)
+    prevBtn.addEventListener('click', () => {
+      if (surahSelect.selectedIndex > 1) {
+        surahSelect.selectedIndex--;
+        surahSelect.dispatchEvent(new Event('change'));
+      }
+    });
+
+
+    // CORRECTIF #3 : Support Navigation Télé / Télécommande D-Pad
+    window.addEventListener('keydown', (e) => {
+      const focusables = Array.from(document.querySelectorAll('.tv-focusable'));
+      let index = focusables.indexOf(document.activeElement);
+      const isSelect = document.activeElement.tagName === 'SELECT';
+
+
+      switch (e.key) {
+        case 'ArrowRight':
+          if (document.activeElement.tagName === 'INPUT' && document.activeElement.type === 'range') return;
+          e.preventDefault();
+          index = (index + 1) % focusables.length;
+          focusables[index].focus();
+          break;
+        case 'ArrowLeft':
+          if (document.activeElement.tagName === 'INPUT' && document.activeElement.type === 'range') return;
+          e.preventDefault();
+          index = (index - 1 + focusables.length) % focusables.length;
+          focusables[index].focus();
+          break;
+        case 'ArrowDown':
+          if (isSelect || (document.activeElement.tagName === 'INPUT' && document.activeElement.type === 'range')) return;
+          e.preventDefault();
+          index = (index + 1) % focusables.length;
+          focusables[index].focus();
+          break;
+        case 'ArrowUp':
+          if (isSelect || (document.activeElement.tagName === 'INPUT' && document.activeElement.type === 'range')) return;
+          e.preventDefault();
+          index = (index - 1 + focusables.length) % focusables.length;
+          focusables[index].focus();
+          break;
+        case 'MediaPlayPause':
+        case 'MediaPlay':
+        case 'MediaPause':
+          e.preventDefault();
+          playBtn.click();
+          break;
+        case 'MediaTrackNext':
+          e.preventDefault();
+          nextBtn.click();
+          break;
+        case 'MediaTrackPrevious':
+          e.preventDefault();
+          prevBtn.click();
+          break;
+      }
+    });
+
+
+    loadReciters().then(restorePlayerState);
+  </script>
+</body>
+</html>

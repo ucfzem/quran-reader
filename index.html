@@ -381,7 +381,12 @@
 
     .dropdown-modal {
       position: fixed;
-      inset: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
       background: rgba(0, 0, 0, 0.75);
       backdrop-filter: blur(6px);
       display: flex;
@@ -1220,6 +1225,28 @@
   }
 
 
+  // NORMALIZE KEYS FOR LEGACY TV REMOTES (e.key may be 'Unidentified' on old WebOS/Tizen)
+  function normalizeDirection(e) {
+    const key = e.key;
+    if (key && key !== 'Unidentified') return key;
+    const kc = e.keyCode || e.which || 0;
+    switch (kc) {
+      case 40: return 'ArrowDown';
+      case 38: return 'ArrowUp';
+      case 37: return 'ArrowLeft';
+      case 39: return 'ArrowRight';
+      case 13: return 'Enter';
+      case 27: return 'Escape';
+      case 10009: return 'Back';
+      case 461: return 'Back';
+      case 179: return 'MediaPlayPause';
+      case 176: return 'MediaTrackNext';
+      case 177: return 'MediaTrackPrevious';
+    }
+    return key || '';
+  }
+
+
   // SURAH DROPDOWN
   const surahTrigger = document.getElementById('surahTrigger');
   const surahTriggerText = document.getElementById('surahTriggerText');
@@ -1251,7 +1278,10 @@
     const currentIndex = focusableItems.indexOf(document.activeElement);
 
 
-    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    const key = normalizeDirection(e);
+
+
+    if (key === 'ArrowDown' || key === 'ArrowUp') {
       e.preventDefault();
       e.stopPropagation();
 
@@ -1262,19 +1292,19 @@
 
 
       let targetIndex;
-      if (e.key === 'ArrowDown') {
+      if (key === 'ArrowDown') {
         targetIndex = Math.min(currentIndex + 1, focusableItems.length - 1);
       } else {
         targetIndex = Math.max(currentIndex - 1, 0);
       }
       focusAndCenter(focusableItems[targetIndex]);
-    } else if (e.key === 'Enter') {
+    } else if (key === 'Enter') {
       e.preventDefault();
       e.stopPropagation();
       if (document.activeElement && document.activeElement.classList.contains('dropdown-item')) {
         document.activeElement.click();
       }
-    } else if (e.key === 'Escape' || e.key === 'Back') {
+    } else if (key === 'Escape' || key === 'Back') {
       e.preventDefault();
       e.stopPropagation();
       surahModal.classList.add('hidden');
@@ -1345,7 +1375,10 @@
     const currentIndex = focusableItems.indexOf(document.activeElement);
 
 
-    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    const key = normalizeDirection(e);
+
+
+    if (key === 'ArrowDown' || key === 'ArrowUp') {
       e.preventDefault();
       e.stopPropagation();
 
@@ -1356,19 +1389,19 @@
 
 
       let targetIndex;
-      if (e.key === 'ArrowDown') {
+      if (key === 'ArrowDown') {
         targetIndex = Math.min(currentIndex + 1, focusableItems.length - 1);
       } else {
         targetIndex = Math.max(currentIndex - 1, 0);
       }
       focusAndCenter(focusableItems[targetIndex]);
-    } else if (e.key === 'Enter') {
+    } else if (key === 'Enter') {
       e.preventDefault();
       e.stopPropagation();
       if (document.activeElement && document.activeElement.classList.contains('dropdown-item')) {
         document.activeElement.click();
       }
-    } else if (e.key === 'Escape' || e.key === 'Back') {
+    } else if (key === 'Escape' || key === 'Back') {
       e.preventDefault();
       e.stopPropagation();
       reciterModal.classList.add('hidden');
@@ -1416,19 +1449,19 @@
     const isSelect = document.activeElement.tagName === 'SELECT';
 
 
-    switch (e.key) {
+    switch (normalizeDirection(e)) {
       case 'ArrowRight':
       case 'ArrowLeft':
         if (document.activeElement.tagName === 'INPUT' && document.activeElement.type === 'range') return;
         e.preventDefault();
-        index = (index + (e.key === 'ArrowRight' ? 1 : -1) + focusables.length) % focusables.length;
+        index = (index + (normalizeDirection(e) === 'ArrowRight' ? 1 : -1) + focusables.length) % focusables.length;
         focusables[index].focus();
         break;
       case 'ArrowDown':
       case 'ArrowUp':
         if (isSelect || (document.activeElement.tagName === 'INPUT' && document.activeElement.type === 'range')) return;
         e.preventDefault();
-        index = (index + (e.key === 'ArrowDown' ? 1 : -1) + focusables.length) % focusables.length;
+        index = (index + (normalizeDirection(e) === 'ArrowDown' ? 1 : -1) + focusables.length) % focusables.length;
         focusables[index].focus();
         break;
       case 'MediaPlayPause':
